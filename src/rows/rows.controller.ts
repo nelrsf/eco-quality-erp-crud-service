@@ -2,10 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } fr
 import { RowsService } from './rows.service';
 import { CreateRowDto } from './dto/create-row.dto';
 import { UpdateRowDto } from './dto/update-row.dto';
+import { ColumnsService } from 'src/columns/columns.service';
 
 @Controller('rows')
 export class RowsController {
-  constructor(private readonly rowsService: RowsService) {}
+  constructor(private readonly rowsService: RowsService, 
+              private readonly columnsService: ColumnsService) {}
 
   @Post()
   create(@Body() createRowDto: CreateRowDto) {
@@ -16,7 +18,9 @@ export class RowsController {
   findAll(@Res() res, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.findAll(module, table).then(
       (rows => {
-        res.status(HttpStatus.OK).json(rows);
+        const columnsMetadata = this.columnsService.findAndDeleteColumnsMetadata(rows);
+        const filteredRows = this.columnsService.filterRowsByColumnsMetadata(columnsMetadata[0], rows);
+        res.status(HttpStatus.OK).json(filteredRows);
       })
     );
   }

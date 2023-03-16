@@ -7,9 +7,13 @@ import { UpdateColumnDto } from './dto/update-column.dto';
 export class ColumnsController {
   constructor(private readonly columnsService: ColumnsService) { }
 
-  @Post()
-  create(@Body() createColumnDto: CreateColumnDto) {
-    return this.columnsService.create(createColumnDto);
+  @Post('/create')
+  create(@Res() res, @Body() createColumnDto: CreateColumnDto) {
+    return this.columnsService.create(createColumnDto).then(
+      (data) => { 
+        res.status(HttpStatus.OK).json(data);
+      }
+    );
   }
 
   @Get()
@@ -28,9 +32,13 @@ export class ColumnsController {
     );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateColumnDto: UpdateColumnDto) {
-    return this.columnsService.update(+id, updateColumnDto);
+  @Patch('/update')
+  update(@Res() res, @Body() updateColumnDto: UpdateColumnDto) {
+    return this.columnsService.update(updateColumnDto).then(
+      (data) => { 
+        res.status(HttpStatus.OK).json(data);
+      }
+    );
   }
 
   @Delete(':id')
