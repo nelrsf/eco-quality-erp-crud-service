@@ -16,8 +16,10 @@ export class RowsService {
   }
 
 
-  create(createRowDto: CreateRowDto) {
-    return 'This action adds a new row';
+  create(module: string, table: string, createRowDto: any) {
+    return this.client.db(module).collection(table).insertOne(
+      createRowDto
+    )
   }
 
   async findAll(dbName: string, tableName: string) {
