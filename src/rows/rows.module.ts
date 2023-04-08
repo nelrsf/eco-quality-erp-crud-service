@@ -3,10 +3,11 @@ import { RowsService } from './rows.service';
 import { RowsController } from './rows.controller';
 import { AppService } from 'src/app.service';
 import { ColumnsService } from 'src/columns/columns.service';
+import { ErrorDataHandler } from 'src/errors/errorsDictionary';
 
 
 @Module({
   controllers: [RowsController],
-  providers: [RowsService, ColumnsService, AppService]
+  providers: [RowsService, ColumnsService, AppService, ErrorDataHandler]
 })
 export class RowsModule {}

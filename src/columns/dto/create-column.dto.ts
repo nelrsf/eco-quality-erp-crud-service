@@ -7,4 +7,8 @@ export class CreateColumnDto {
     required: boolean
     module: string
     table: string
+    unique: boolean
+    moduleRestriction?: string
+    tableRestriction?: string
+    columnRestriction?: string
 }

@@ -3,6 +3,7 @@ import { MongoClient } from 'mongodb';
 import { AppService } from 'src/app.service';
 import { CreateTableDto } from './dto/create-table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
+import { ModulesService } from 'src/modules/modules.service';
 
 @Injectable()
 export class TablesService {
@@ -15,16 +16,52 @@ export class TablesService {
     this.client = new MongoClient(dbConnectionUrl);
   }
 
-  create(createTableDto: CreateTableDto) {
-    return 'This action adds a new table';
+  async create(moduleName: string, tableName: string) {
+    const newCollection = await this.client.db(moduleName).createCollection(tableName);
+    await newCollection.insertOne({
+      name__document_md: "document-metadata",
+      table_metadata: {
+        module: moduleName,
+        table: tableName,
+        label: tableName,
+        description: "Descripción de " + tableName
+      }
+    });
+    return await this.findAll(moduleName);
   }
 
   async findAll(dbName: string) {
     const collections = await this.client.db(dbName).listCollections().toArray();
-    return collections;
+    const tables = Promise.all(
+      collections.map(
+        async coll => {
+          const documentMetadata = await this.client.db(dbName)
+            .collection(coll.name)
+            .findOne({ name__document_md: "document-metadata" });
+          if (!documentMetadata) {
+            return {
+              name: coll.name,
+              label: coll.name,
+              description: ""
+            }
+          }
+          const tableMetadata = documentMetadata.table_metadata;
+          return {
+            name: coll.name,
+            label: tableMetadata?.label ? tableMetadata.label : coll.name,
+            description: tableMetadata?.description ? tableMetadata.description : "" 
+          }
+        }
+      )
+    )
+    return this.filterModuleMetadata(await tables);
   }
 
-
+  filterModuleMetadata(collections: Array<any>) {
+    return collections.filter((coll) => {
+      return !coll.name.endsWith(ModulesService.MODULE_METADATA_TAG)
+    })
+  }
 
   findOne(id: number) {
     return `This action returns a #${id} table`;

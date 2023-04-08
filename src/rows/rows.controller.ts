@@ -2,17 +2,23 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } fr
 import { RowsService } from './rows.service';
 import { UpdateRowDto } from './dto/update-row.dto';
 import { ColumnsService } from 'src/columns/columns.service';
+import { ErrorDataHandler } from 'src/errors/errorsDictionary';
 
 @Controller('rows')
 export class RowsController {
-  constructor(private readonly rowsService: RowsService, 
-              private readonly columnsService: ColumnsService) {}
+  constructor(private readonly rowsService: RowsService,
+    private readonly columnsService: ColumnsService, private errorHandler: ErrorDataHandler) { }
 
   @Post('/create/:module/:table')
   create(@Res() res, @Body() createRowDto: any, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.create(module, table, createRowDto).then(
-      (response)=>{
+      (response) => {
         res.status(HttpStatus.OK).json(response);
+      }
+    ).catch(
+      (error) => {
+        const errorData = this.errorHandler.getErrorMessagByCode(error);
+        res.status(errorData.status).json(errorData.message);
       }
     );
   }
@@ -22,28 +28,67 @@ export class RowsController {
     return this.rowsService.findAll(module, table).then(
       (rows => {
         const columnsMetadata = this.columnsService.findAndDeleteColumnsMetadata(rows);
-        if(!columnsMetadata || columnsMetadata.length === 0){
+        if (!columnsMetadata || columnsMetadata.length === 0) {
           res.status(HttpStatus.OK).json([]);
           return;
         }
+        const restrictions = this.rowsService.findRestrictions(rows);
         const filteredRows = this.columnsService.filterRowsByColumnsMetadata(columnsMetadata[0], rows);
+        if (restrictions) {
+          const rowToUpdate = filteredRows.find(
+            (fr: any) => {
+              return restrictions._id === fr._id;
+            }
+          );
+          if (rowToUpdate) {
+            Object.assign(rowToUpdate, restrictions);
+          }
+        }
         res.status(HttpStatus.OK).json(filteredRows);
       })
     );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rowsService.findOne(+id);
+  @Get('/:module/:table/:id/:column')
+  findOneByRowIdAndColumn(@Res() res, @Param() params: any) {
+    const module = params.module;
+    const table = params.table;
+    const column = params.column;
+    const id = params.id;
+    return this.rowsService.findOneByIdAndColumn(module, table, column, id).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRowDto: UpdateRowDto) {
-    return this.rowsService.update(+id, updateRowDto);
+  @Get('/:module/:table/:id')
+  findOneByRowId(@Res() res, @Param() params: any) {
+    const module = params.module;
+    const table = params.table;
+    const id = params.id;
+    return this.rowsService.findOneById(module, table, id).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    )
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rowsService.remove(+id);
+  @Patch('/update/:module/:table')
+  update(@Res() res, @Body() updateRowDto: any, @Param('module') module: string, @Param('table') table: string) {
+    return this.rowsService.update(module, table, updateRowDto).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
+  }
+
+  @Post('/delete/:module/:table')
+  remove(@Res() res, @Body() deleteIds: any, @Param('module') module: string, @Param('table') table: string) {
+    return this.rowsService.remove(module, table, deleteIds).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
   }
 }

@@ -7,16 +7,22 @@ import { UpdateModuleDto } from './dto/update-module.dto';
 export class ModulesController {
   constructor(private readonly modulesService: ModulesService) {}
 
-  @Post()
-  create(@Body() createModuleDto: CreateModuleDto) {
-    return this.modulesService.create(createModuleDto);
+  @Post('/create')
+  create(@Res() res, @Body('module') module: string) {
+    return this.modulesService.create(module).then(
+      (databases) => {
+        const filteredDbs = this.modulesService.filterModules(databases);
+        res.status(HttpStatus.OK).json(filteredDbs);
+      }
+    );
   }
 
   @Get('/')
   findAll(@Res() res) {
     this.modulesService.findAll().then(
       (databases) => {
-        res.status(HttpStatus.OK).json(databases);
+        const filteredDbs = this.modulesService.filterModules(databases);
+        res.status(HttpStatus.OK).json(filteredDbs);
       }
     );
   }

@@ -36,6 +36,8 @@ export class ColumnsService {
   }
 
   async upsert(createColumnDto: CreateColumnDto) {
+    await this.createIndexToUniqueColumn(createColumnDto);
+    await this.deleteIndexFromUniqueColumn(createColumnDto);
     const db = this.client.db(createColumnDto.module);
     const collection = db.collection(createColumnDto.table);
     const documentMetadata = await collection.findOne({ name__document_md: "document-metadata" });
@@ -55,7 +57,52 @@ export class ColumnsService {
     );
   }
 
+  private async createIndexToUniqueColumn(createColumnDto: CreateColumnDto) {
+    if (!createColumnDto.unique) {
+      return;
+    }
+    const db = this.client.db(createColumnDto.module);
+    const collection = db.collection(createColumnDto.table);
+    let fieldIndexData = {};
+    fieldIndexData[createColumnDto.columnName] = 1;
+    await collection.createIndex(fieldIndexData, { unique: true });
+  }
+
+  private async deleteIndexFromUniqueColumn(createColumnDto: CreateColumnDto) {
+    if (createColumnDto.unique) {
+      return;
+    }
+    const db = this.client.db(createColumnDto.module);
+    const collection = db.collection(createColumnDto.table);
+    const indexName = `${createColumnDto.columnName}_1`;
+    await collection.dropIndex(indexName);
+  }
+
+  async deleteRestrictions(columnname: string, table: string, module: string) {
+    const collection = this.client.db(module).collection(table);
+    const documentRestrictions = await collection.findOne({
+      __rows_restrictions__data__: "rows_restrictions"
+    });
+    if (!documentRestrictions) {
+      return
+    }
+    documentRestrictions.data.forEach(
+      async (restriction, index) => {
+        if (restriction.column.columnName === columnname) {
+          documentRestrictions.data.splice(index, 1);
+        }
+      }
+    );
+    collection.updateOne({
+      __rows_restrictions__data__: "rows_restrictions"
+    },
+      {
+        $set: documentRestrictions
+      })
+  }
+
   async remove(columnname: string, table: string, module: string) {
+    await this.deleteRestrictions(columnname, table, module);
     const collection = this.client.db(module).collection(table);
     const documentMetadata = await collection.findOne({
       name__document_md: "document-metadata"

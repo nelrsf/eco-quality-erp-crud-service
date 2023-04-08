@@ -5,11 +5,15 @@ import { UpdateTableDto } from './dto/update-table.dto';
 
 @Controller('tables')
 export class TablesController {
-  constructor(private readonly tablesService: TablesService) {}
+  constructor(private readonly tablesService: TablesService) { }
 
-  @Post()
-  create(@Body() createTableDto: CreateTableDto) {
-    return this.tablesService.create(createTableDto);
+  @Post('create/:module/:table')
+  create(@Res() res, @Body() params: any) {
+    return this.tablesService.create(params.module, params.table).then(
+      (tables => {
+        res.status(HttpStatus.OK).json(tables);
+      })
+    );
   }
 
   @Get('/:module')
