@@ -22,6 +22,11 @@ export class ModulesService {
   }
 
   async findAll() {
+    const databaseName = 'admin';
+    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
+    console.log("constructor",dbConnectionUrl)
+    this.client = new MongoClient(dbConnectionUrl);
+    console.log(this.client)
     const databasesQuery = await this.client.db().admin().listDatabases();
     return Promise.all(
       databasesQuery.databases.map(
