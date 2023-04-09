@@ -21,6 +21,7 @@ export class ModulesService {
 
   async findAll() {
     const databasesQuery = await this.client.db().admin().listDatabases();
+    console.log(databasesQuery)
     return Promise.all(
       databasesQuery.databases.map(
         (db) => {
