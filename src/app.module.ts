@@ -6,6 +6,7 @@ import { ModulesModule } from './modules/modules.module';
 import { TablesModule } from './tables/tables.module';
 import { RowsModule } from './rows/rows.module';
 import { ColumnsModule } from './columns/columns.module';
+import { ErrorDataHandler } from './errorsHandler/errorsDictionary';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { ColumnsModule } from './columns/columns.module';
     ColumnsModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, ErrorDataHandler]
 })
 export class AppModule {}
