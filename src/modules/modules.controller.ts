@@ -3,6 +3,7 @@ import { ModulesService } from './modules.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
+require('dotenv').config();
 
 @Controller('modules')
 export class ModulesController {
@@ -23,14 +24,21 @@ export class ModulesController {
     );
   }
 
+  getDbUrlConectionStringByDbName(dbName: string) {
+    return process.env.DATABASE_URL.replace('DATABASE_NAME', dbName);
+  }
+
   @Get('/')
   findAll(@Res() res) {
-    this.modulesService.findAll().then(
-      (databases) => {
-        const filteredDbs = this.modulesService.filterModules(databases);
-        res.status(HttpStatus.OK).json(filteredDbs);
-      }
-    );
+    const databaseName = 'admin';
+    const dbConnectionUrl = this.getDbUrlConectionStringByDbName(databaseName);
+    res.status(200).json(dbConnectionUrl)
+    // this.modulesService.findAll().then(
+    //   (databases) => {
+    //     const filteredDbs = this.modulesService.filterModules(databases);
+    //     res.status(HttpStatus.OK).json(filteredDbs);
+    //   }
+    // );
   }
 
   @Get('/modulestables')

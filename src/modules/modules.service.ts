@@ -16,7 +16,6 @@ export class ModulesService {
   constructor(private appService: AppService, private tablesService: TablesService) {
     const databaseName = 'admin';
     const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    console.log(dbConnectionUrl)
     this.client = new MongoClient(dbConnectionUrl);
   }
 
