@@ -24,21 +24,18 @@ export class ModulesController {
     );
   }
 
-  getDbUrlConectionStringByDbName(dbName: string) {
-    return process.env.DATABASE_URL.replace('DATABASE_NAME', dbName);
-  }
-
   @Get('/')
   findAll(@Res() res) {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.getDbUrlConectionStringByDbName(databaseName);
-    res.status(200).json(dbConnectionUrl)
-    // this.modulesService.findAll().then(
-    //   (databases) => {
-    //     const filteredDbs = this.modulesService.filterModules(databases);
-    //     res.status(HttpStatus.OK).json(filteredDbs);
-    //   }
-    // );
+    this.modulesService.findAll().then(
+      (databases) => {
+        const filteredDbs = this.modulesService.filterModules(databases);
+        res.status(HttpStatus.OK).json(filteredDbs);
+      }
+    ).catch(
+      (error) => {
+        res.status(HttpStatus.NOT_FOUND).json(error);
+      }
+    );
   }
 
   @Get('/modulestables')
