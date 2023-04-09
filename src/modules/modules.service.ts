@@ -16,21 +16,16 @@ export class ModulesService {
   constructor(private appService: AppService, private tablesService: TablesService) {
     const databaseName = 'admin';
     const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    console.log("constructor",dbConnectionUrl)
     this.client = new MongoClient(dbConnectionUrl);
-    console.log(this.client)
   }
 
   async findAll() {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    console.log("constructor",dbConnectionUrl)
-    this.client = new MongoClient(dbConnectionUrl);
-    console.log(this.client)
     const databasesQuery = await this.client.db().admin().listDatabases();
+    console.log(databasesQuery)
     return Promise.all(
       databasesQuery.databases.map(
         (db) => {
+          console.log(db)
           const moduleMetadata = this.findModuleMetadata(db.name);
           if (moduleMetadata) {
             return moduleMetadata;
