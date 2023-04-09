@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { AppService } from 'src/app.service';
 import { CreateTableDto } from './dto/create-table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { ModulesService } from 'src/modules/modules.service';
+import { Table } from './entities/table.entity';
 
 @Injectable()
 export class TablesService {
@@ -49,7 +50,7 @@ export class TablesService {
           return {
             name: coll.name,
             label: tableMetadata?.label ? tableMetadata.label : coll.name,
-            description: tableMetadata?.description ? tableMetadata.description : "" 
+            description: tableMetadata?.description ? tableMetadata.description : ""
           }
         }
       )
@@ -63,6 +64,41 @@ export class TablesService {
     })
   }
 
+  async upsertTableConfiguration(module: string, table: Table) {
+    const collection = this.client.db(module).collection(table.name);
+    let documentMetadata = await collection.findOne({ name__document_md: "document-metadata" });
+    if (!documentMetadata) {
+      return await collection.insertOne(
+        {
+          name__document_md: "document-metadata",
+          table_metadata:
+          {
+            name: table.name,
+            label: table.label,
+            description: table.description
+          }
+        }
+      )
+    } else {
+      return await collection.updateOne(
+        {
+          _id: new ObjectId(documentMetadata._id)
+        },
+        {
+          $set: {
+            table_metadata: {
+              name: table.name,
+              label: table.label,
+              description: table.description
+            }
+          }
+        }
+      );
+    }
+
+  }
+
+
   findOne(id: number) {
     return `This action returns a #${id} table`;
   }
@@ -71,7 +107,7 @@ export class TablesService {
     return `This action updates a #${id} table`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} table`;
+  remove(module: string, table: string) {
+    return this.client.db(module).dropCollection(table);
   }
 }

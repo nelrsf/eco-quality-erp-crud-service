@@ -17,7 +17,7 @@ export class RowsController {
       }
     ).catch(
       (error) => {
-        const errorData = this.errorHandler.getErrorMessagByCode(error);
+        const errorData = this.errorHandler.getErrorObjectByCode(error);
         res.status(errorData.status).json(errorData.message);
       }
     );

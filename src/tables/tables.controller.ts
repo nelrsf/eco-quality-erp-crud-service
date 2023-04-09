@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { TablesService } from './tables.service';
-import { CreateTableDto } from './dto/create-table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
+import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { Table } from './entities/table.entity';
 
 @Controller('tables')
 export class TablesController {
-  constructor(private readonly tablesService: TablesService) { }
+  constructor(private readonly tablesService: TablesService, private errorHandler: ErrorDataHandler) { }
 
   @Post('create/:module/:table')
   create(@Res() res, @Body() params: any) {
@@ -13,6 +14,11 @@ export class TablesController {
       (tables => {
         res.status(HttpStatus.OK).json(tables);
       })
+    ).catch(
+      (error) => {
+        const errorData = this.errorHandler.getErrorObjectByCode(error);
+        res.status(errorData.status).json(errorData.message);
+      }
     );
   }
 
@@ -25,6 +31,14 @@ export class TablesController {
     );
   }
 
+  @Post('/customize/:module')
+  customizeModule(@Res() res, @Param('module') module: string, @Body() table: Table): void {
+    this.tablesService.upsertTableConfiguration(module, table).then(
+      (result) => {
+        res.status(HttpStatus.OK).json(result);
+      }
+    );
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -36,8 +50,8 @@ export class TablesController {
     return this.tablesService.update(+id, updateTableDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tablesService.remove(+id);
+  @Post('delete/:module/:table')
+  remove(@Param('module') module: string, @Param('table') table: string) {
+    return this.tablesService.remove(module, table);
   }
 }

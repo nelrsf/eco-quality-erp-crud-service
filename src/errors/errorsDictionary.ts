@@ -14,15 +14,25 @@ export class ErrorDataHandler {
             {
                 return `El campo ${key} con valor ${value} está duplicado`
             }            
+        },
+        {
+            code: 48,
+            status: HttpStatus.CONFLICT,
+            message: (key: string, value: string): string =>
+            {
+                return `El nombre del recurso ya existe`
+            }            
         }
     ]
 
-getErrorMessagByCode(error: any): any {
+getErrorObjectByCode(error: any): any {
     const errorDataFound = this.errors.find(
         e => e.code === error.code
     )
-    this.key = Object.keys(error.keyValue)[0];
-    this.value = error.keyValue[this.key];
+    if(error?.keyValue){
+        this.key = Object.keys(error.keyValue)[0];
+        this.value = error.keyValue[this.key];
+    }
     if(!errorDataFound){
         return { 
             message: "Error desconocido", 

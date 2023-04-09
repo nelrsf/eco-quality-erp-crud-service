@@ -2,10 +2,12 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } fr
 import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
+import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { Module } from './entities/module.entity';
 
 @Controller('modules')
 export class ModulesController {
-  constructor(private readonly modulesService: ModulesService) {}
+  constructor(private readonly modulesService: ModulesService, private errorHandler: ErrorDataHandler) { }
 
   @Post('/create')
   create(@Res() res, @Body('module') module: string) {
@@ -13,6 +15,11 @@ export class ModulesController {
       (databases) => {
         const filteredDbs = this.modulesService.filterModules(databases);
         res.status(HttpStatus.OK).json(filteredDbs);
+      }
+    ).catch(
+      (error) => {
+        const errorData = this.errorHandler.getErrorObjectByCode(error);
+        res.status(errorData.status).json(errorData.message);
       }
     );
   }
@@ -36,6 +43,15 @@ export class ModulesController {
     );
   }
 
+  @Post('/customize')
+  customizeModule(@Res() res, @Body() module: Module): void {
+    this.modulesService.upsertModuleConfiguration(module).then(
+      (result) => {
+        res.status(HttpStatus.OK).json(result);
+      }
+    );
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.modulesService.findOne(+id);
@@ -46,8 +62,16 @@ export class ModulesController {
     return this.modulesService.update(+id, updateModuleDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.modulesService.remove(+id);
+  @Post(':module')
+  remove(@Res() res, @Body('module') module: string) {
+    return this.modulesService.remove(module).then(
+      (result) => {
+        if (result) {
+          res.status(HttpStatus.OK).json("Módulo eliminado correcamente");
+        } else {
+          res.status(HttpStatus.CONFLICT).json("Error al eliminar el módulo");
+        }
+      }
+    );
   }
 }

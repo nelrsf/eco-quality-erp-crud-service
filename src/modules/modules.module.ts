@@ -5,10 +5,11 @@ import { AppModule } from 'src/app.module';
 import { TablesModule } from 'src/tables/tables.module';
 import { TablesService } from 'src/tables/tables.service';
 import { AppService } from 'src/app.service';
+import { ErrorDataHandler } from 'src/errors/errorsDictionary';
 
 @Module({
   controllers: [ModulesController],
-  providers: [ModulesService, TablesService, AppService],
+  providers: [ModulesService, TablesService, AppService, ErrorDataHandler],
   imports: [
     TablesModule
   ]

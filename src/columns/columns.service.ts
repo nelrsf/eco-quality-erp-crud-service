@@ -24,6 +24,7 @@ export class ColumnsService {
     }
     delete documentMetadata._id;
     delete documentMetadata.name__document_md;
+    delete documentMetadata.table_metadata;
     return documentMetadata;
   }
 
@@ -75,7 +76,11 @@ export class ColumnsService {
     const db = this.client.db(createColumnDto.module);
     const collection = db.collection(createColumnDto.table);
     const indexName = `${createColumnDto.columnName}_1`;
-    await collection.dropIndex(indexName);
+    try {
+      await collection.dropIndex(indexName);
+    } catch {
+
+    }
   }
 
   async deleteRestrictions(columnname: string, table: string, module: string) {

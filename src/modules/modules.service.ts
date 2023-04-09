@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import { AppService } from 'src/app.service';
 import { TablesService } from 'src/tables/tables.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
@@ -95,6 +95,34 @@ export class ModulesService {
     return await this.findAll();
   }
 
+  async upsertModuleConfiguration(module: Module) {
+    const collection = this.client.db(module.name).collection(module.name + ModulesService.MODULE_METADATA_TAG);
+    let documentMetadata = await collection.findOne({ name: module.name });
+    if (!documentMetadata) {
+      return await collection.insertOne(
+        {
+          name: module.name,
+          label: module.label,
+          description: module.description
+        }
+      )
+    } else {
+      return await collection.updateOne(
+        {
+          _id: new ObjectId(documentMetadata._id)
+        },
+        {
+          $set: {
+            name: module.name,
+            label: module.label,
+            description: module.description
+          }
+        }
+      );
+    }
+
+  }
+
 
   findOne(id: number) {
     return `This action returns a #${id} module`;
@@ -104,7 +132,18 @@ export class ModulesService {
     return `This action updates a #${id} module`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} module`;
+  async remove(moduleName: string) {
+    const db = this.client.db(moduleName);
+    const collections = await db.listCollections().toArray();
+    const result = await Promise.all(
+      collections.map(
+        (collection) => {
+          return db.dropCollection(collection.name);
+        }
+      )
+    );
+    return result.reduce((current: boolean, previous: boolean) => {
+      return current && previous
+    }, true)
   }
 }
