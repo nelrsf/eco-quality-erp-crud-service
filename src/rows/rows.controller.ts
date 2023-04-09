@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } fr
 import { RowsService } from './rows.service';
 import { UpdateRowDto } from './dto/update-row.dto';
 import { ColumnsService } from 'src/columns/columns.service';
-import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 
 @Controller('rows')
 export class RowsController {

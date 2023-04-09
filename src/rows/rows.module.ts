@@ -3,7 +3,7 @@ import { RowsService } from './rows.service';
 import { RowsController } from './rows.controller';
 import { AppService } from 'src/app.service';
 import { ColumnsService } from 'src/columns/columns.service';
-import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 
 
 @Module({

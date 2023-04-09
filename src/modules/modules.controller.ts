@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } fr
 import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dto/create-module.dto';
 import { UpdateModuleDto } from './dto/update-module.dto';
-import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
 
 @Controller('modules')

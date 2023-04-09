@@ -5,7 +5,7 @@ import { AppModule } from 'src/app.module';
 import { TablesModule } from 'src/tables/tables.module';
 import { TablesService } from 'src/tables/tables.service';
 import { AppService } from 'src/app.service';
-import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 
 @Module({
   controllers: [ModulesController],

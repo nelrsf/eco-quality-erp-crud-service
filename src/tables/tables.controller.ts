@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { TablesService } from './tables.service';
 import { UpdateTableDto } from './dto/update-table.dto';
-import { ErrorDataHandler } from 'src/errors/errorsDictionary';
+import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Table } from './entities/table.entity';
 
 @Controller('tables')
