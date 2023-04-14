@@ -7,6 +7,7 @@ import { TablesModule } from './tables/tables.module';
 import { RowsModule } from './rows/rows.module';
 import { ColumnsModule } from './columns/columns.module';
 import { ErrorDataHandler } from './errorsHandler/errorsDictionary';
+import { Connection } from './server/mongodb/connection';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { ErrorDataHandler } from './errorsHandler/errorsDictionary';
     ColumnsModule
   ],
   controllers: [AppController],
-  providers: [AppService, ErrorDataHandler]
+  providers: [AppService, ErrorDataHandler, Connection]
 })
 export class AppModule {}
