@@ -1,24 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { MongoClient, ObjectId } from 'mongodb';
-import { AppService } from 'src/app.service';
-import { CreateTableDto } from './dto/create-table.dto';
+import { ObjectId } from 'mongodb';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { ModulesService } from 'src/modules/modules.service';
 import { Table } from './entities/table.entity';
+import { Connection } from 'src/server/mongodb/connection';
 
 @Injectable()
 export class TablesService {
 
-  private client: MongoClient;
-
-  constructor(private appService: AppService) {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    this.client = new MongoClient(dbConnectionUrl);
-  }
+  constructor() {}
 
   async create(moduleName: string, tableName: string) {
-    const newCollection = await this.client.db(moduleName).createCollection(tableName);
+    const client = Connection.getClient();
+    const newCollection = await client.db(moduleName).createCollection(tableName);
     await newCollection.insertOne({
       name__document_md: "document-metadata",
       table_metadata: {
@@ -32,11 +26,12 @@ export class TablesService {
   }
 
   async findAll(dbName: string) {
-    const collections = await this.client.db(dbName).listCollections().toArray();
+    const client = Connection.getClient();
+    const collections = await client.db(dbName).listCollections().toArray();
     const tables = Promise.all(
       collections.map(
         async coll => {
-          const documentMetadata = await this.client.db(dbName)
+          const documentMetadata = await client.db(dbName)
             .collection(coll.name)
             .findOne({ name__document_md: "document-metadata" });
           if (!documentMetadata) {
@@ -65,7 +60,8 @@ export class TablesService {
   }
 
   async upsertTableConfiguration(module: string, table: Table) {
-    const collection = this.client.db(module).collection(table.name);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table.name);
     let documentMetadata = await collection.findOne({ name__document_md: "document-metadata" });
     if (!documentMetadata) {
       return await collection.insertOne(
@@ -108,6 +104,7 @@ export class TablesService {
   }
 
   remove(module: string, table: string) {
-    return this.client.db(module).dropCollection(table);
+    const client = Connection.getClient();
+    return client.db(module).dropCollection(table);
   }
 }

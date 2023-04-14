@@ -4,28 +4,25 @@ import { AppService } from 'src/app.service';
 import { TablesService } from 'src/tables/tables.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { Module } from './entities/module.entity';
+import { Connection } from 'src/server/mongodb/connection';
 
 @Injectable()
 export class ModulesService {
 
-  private client: MongoClient;
   public static MODULE_METADATA_TAG = "__module__metadata__";
   private dbsToExclude: Array<string> = ['admin', 'local'];
 
 
-  constructor(private appService: AppService, private tablesService: TablesService) {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    this.client = new MongoClient(dbConnectionUrl);
+  constructor(private tablesService: TablesService) {
+
   }
 
   async findAll() {
-    const databasesQuery = await this.client.db().admin().listDatabases();
-    console.log(databasesQuery)
+    const client = Connection.getClient();
+    const databasesQuery = await client.db().admin().listDatabases();
     return Promise.all(
       databasesQuery.databases.map(
         (db) => {
-          console.log(db)
           const moduleMetadata = this.findModuleMetadata(db.name);
           if (moduleMetadata) {
             return moduleMetadata;
@@ -43,7 +40,8 @@ export class ModulesService {
 
   async findModuleMetadata(moduleName: string) {
     try {
-      const moduleMetadata = await this.client.db(moduleName).collection(moduleName + ModulesService.MODULE_METADATA_TAG);
+      const client = Connection.getClient();
+      const moduleMetadata = client.db(moduleName).collection(moduleName + ModulesService.MODULE_METADATA_TAG);
       const moduleMetadataDocument = await moduleMetadata.findOne({ name: moduleName });
       return moduleMetadataDocument;
     } catch {
@@ -85,20 +83,20 @@ export class ModulesService {
 
   async create(moduleName: string) {
     const dbName = moduleName.replace(/ /g, "_");
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(dbName);
-    const newClient = new MongoClient(dbConnectionUrl);
+    const newClient = Connection.getClient();
     const collectionMetadataName = dbName + ModulesService.MODULE_METADATA_TAG;
-    await newClient.connect();
-    await newClient.db().createCollection(collectionMetadataName);
-    const collectionModuleMetadata = await newClient.db().collection(collectionMetadataName);
+    // await newClient.connect();
+    const db = newClient.db(dbName);
+    await db.createCollection(collectionMetadataName);
+    const collectionModuleMetadata = db.collection(collectionMetadataName);
     const documentModuleMetadata = new Module(dbName, moduleName, "descripcion de " + moduleName);
     await collectionModuleMetadata.insertOne(documentModuleMetadata);
-    await newClient.close(true);
     return await this.findAll();
   }
 
   async upsertModuleConfiguration(module: Module) {
-    const collection = this.client.db(module.name).collection(module.name + ModulesService.MODULE_METADATA_TAG);
+    const client = Connection.getClient();
+    const collection = client.db(module.name).collection(module.name + ModulesService.MODULE_METADATA_TAG);
     let documentMetadata = await collection.findOne({ name: module.name });
     if (!documentMetadata) {
       return await collection.insertOne(
@@ -135,7 +133,8 @@ export class ModulesService {
   }
 
   async remove(moduleName: string) {
-    const db = this.client.db(moduleName);
+    const client = Connection.getClient();
+    const db = client.db(moduleName);
     const collections = await db.listCollections().toArray();
     const result = await Promise.all(
       collections.map(

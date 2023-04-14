@@ -1,22 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { CreateIndexesOptions, MongoClient } from 'mongodb';
-import { AppService } from 'src/app.service';
+import { MongoClient } from 'mongodb';
 import { CreateColumnDto } from './dto/create-column.dto';
-import { UpdateColumnDto } from './dto/update-column.dto';
+import { Connection } from 'src/server/mongodb/connection';
+
+
 
 @Injectable()
 export class ColumnsService {
 
-  private client: MongoClient;
-
-  constructor(private appService: AppService) {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    this.client = new MongoClient(dbConnectionUrl);
-  }
+  constructor() {  }
 
   async findAll(table: string, module: string) {
-    const documentMetadata = await this.client.db(module).collection(table).findOne({
+    const client = await Connection.getClient();
+    const documentMetadata = await client.db(module).collection(table).findOne({
       name__document_md: "document-metadata"
     });
     if (!documentMetadata) {
@@ -30,7 +26,8 @@ export class ColumnsService {
 
 
   async findOne(columnname: string, table: string, module: string) {
-    const documentMetadata = await this.client.db(module).collection(table).findOne({
+    const client = Connection.getClient();
+    const documentMetadata = await client.db(module).collection(table).findOne({
       name__document_md: "document-metadata"
     });
     return documentMetadata[columnname];
@@ -39,7 +36,8 @@ export class ColumnsService {
   async upsert(createColumnDto: CreateColumnDto) {
     await this.createIndexToUniqueColumn(createColumnDto);
     await this.deleteIndexFromUniqueColumn(createColumnDto);
-    const db = this.client.db(createColumnDto.module);
+    const client = await Connection.getClient();
+    const db = client.db(createColumnDto.module);
     const collection = db.collection(createColumnDto.table);
     const documentMetadata = await collection.findOne({ name__document_md: "document-metadata" });
     if (!documentMetadata) {
@@ -62,7 +60,8 @@ export class ColumnsService {
     if (!createColumnDto.unique) {
       return;
     }
-    const db = this.client.db(createColumnDto.module);
+    const client = Connection.getClient();
+    const db = client.db(createColumnDto.module);
     const collection = db.collection(createColumnDto.table);
     let fieldIndexData = {};
     fieldIndexData[createColumnDto.columnName] = 1;
@@ -73,7 +72,8 @@ export class ColumnsService {
     if (createColumnDto.unique) {
       return;
     }
-    const db = this.client.db(createColumnDto.module);
+    const client = Connection.getClient();
+    const db = client.db(createColumnDto.module);
     const collection = db.collection(createColumnDto.table);
     const indexName = `${createColumnDto.columnName}_1`;
     try {
@@ -84,7 +84,8 @@ export class ColumnsService {
   }
 
   async deleteRestrictions(columnname: string, table: string, module: string) {
-    const collection = this.client.db(module).collection(table);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
     const documentRestrictions = await collection.findOne({
       __rows_restrictions__data__: "rows_restrictions"
     });
@@ -108,7 +109,8 @@ export class ColumnsService {
 
   async remove(columnname: string, table: string, module: string) {
     await this.deleteRestrictions(columnname, table, module);
-    const collection = this.client.db(module).collection(table);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
     const documentMetadata = await collection.findOne({
       name__document_md: "document-metadata"
     });

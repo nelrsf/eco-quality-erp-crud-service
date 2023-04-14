@@ -1,33 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { MongoClient, ObjectId, WithId } from 'mongodb';
-import { AppService } from 'src/app.service';
-import { CreateRowDto } from './dto/create-row.dto';
-import { UpdateRowDto } from './dto/update-row.dto';
+import { ObjectId } from 'mongodb';
+import { Connection } from 'src/server/mongodb/connection';
 
 @Injectable()
 export class RowsService {
 
-  private client: MongoClient;
-
-  constructor(private appService: AppService) {
-    const databaseName = 'admin';
-    const dbConnectionUrl = this.appService.getDbUrlConectionStringByDbName(databaseName);
-    this.client = new MongoClient(dbConnectionUrl);
-  }
+  constructor() { }
 
 
   create(module: string, table: string, createRowDto: any) {
-    return this.client.db(module).collection(table).insertOne(
+    const client = Connection.getClient();
+    return client.db(module).collection(table).insertOne(
       createRowDto
     )
   }
 
   async findAll(dbName: string, tableName: string) {
-    return await this.client.db(dbName).collection(tableName).find().toArray();
+    const client = Connection.getClient();
+    return await client.db(dbName).collection(tableName).find().toArray();
   }
 
   async findOneByIdAndColumn(module: string, table: string, column: string, id: string) {
-    const collection = this.client.db(module).collection(table);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
     const row = await collection.findOne(
       {
         _id: new ObjectId(id)
@@ -38,7 +33,8 @@ export class RowsService {
   }
 
   async findOneById(module: string, table: string, id: string) {
-    const collection = this.client.db(module).collection(table);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
     const row = await collection.findOne(
       {
         _id: new ObjectId(id)
@@ -55,7 +51,8 @@ export class RowsService {
       const filter = { _id: new ObjectId(row._id) };
       delete row._id;
       const update = { $set: row };
-      const promise = this.client.db(module).collection(table).updateOne(filter, update);
+      const client = Connection.getClient();
+      const promise = client.db(module).collection(table).updateOne(filter, update);
       promises.push(promise);
     }
     return Promise.all(promises);
@@ -70,7 +67,8 @@ export class RowsService {
   }
 
   async upsertRestrictions(module: string, table: string, updateRowDto: any){
-    const collection = this.client.db(module).collection(table);
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
     const restrictions = this.findRestrictions(updateRowDto);
     if(!restrictions){
       return;
@@ -95,7 +93,8 @@ export class RowsService {
   remove(module: string, table: string, deleteIds: any) {
     const deletePromises = [];
     deleteIds.forEach((deleteObj) => {
-      const deleteProm = this.client.db(module).collection(table).deleteOne(
+      const client = Connection.getClient();
+      const deleteProm = client.db(module).collection(table).deleteOne(
         {
           _id: new ObjectId(deleteObj)
         }
