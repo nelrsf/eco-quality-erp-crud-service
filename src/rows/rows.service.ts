@@ -20,6 +20,15 @@ export class RowsService {
     return await client.db(dbName).collection(tableName).find().toArray();
   }
 
+  async findOneByColumnAndValue(module, table, column, value){
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
+    const objFilter = {};
+    objFilter[column] = value;
+    const row = await collection.findOne(objFilter);
+    return row;
+  }
+
   async findOneByIdAndColumn(module: string, table: string, column: string, id: string) {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);
