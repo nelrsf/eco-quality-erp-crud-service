@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
 import { RowsService } from './rows.service';
-import { UpdateRowDto } from './dto/update-row.dto';
-import { ColumnsService } from 'src/columns/columns.service';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
+import { ColumnsService } from '../columns/columns.service';
 
 @Controller('rows')
 export class RowsController {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { UpdateTableDto } from './dto/update-table.dto';
-import { ModulesService } from 'src/modules/modules.service';
-import { Table } from './entities/table.entity';
 import { Connection } from 'src/server/mongodb/connection';
+import { ModulesService } from '../modules/modules.service';
+import { Table } from './entities/table.entity';
 
 @Injectable()
 export class TablesService {

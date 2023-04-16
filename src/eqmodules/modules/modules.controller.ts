@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus, UseInterceptors } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
+import { JwtGuard } from 'src/guards/jwt.guard';
 require('dotenv').config();
 
 @Controller('modules')

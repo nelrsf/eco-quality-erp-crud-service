@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { MongoClient, ObjectId } from 'mongodb';
-import { AppService } from 'src/app.service';
-import { TablesService } from 'src/tables/tables.service';
+import { ObjectId } from 'mongodb';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { Module } from './entities/module.entity';
 import { Connection } from 'src/server/mongodb/connection';
+import { TablesService } from '../tables/tables.service';
 
 @Injectable()
 export class ModulesService {
@@ -85,7 +84,6 @@ export class ModulesService {
     const dbName = moduleName.replace(/ /g, "_");
     const newClient = Connection.getClient();
     const collectionMetadataName = dbName + ModulesService.MODULE_METADATA_TAG;
-    // await newClient.connect();
     const db = newClient.db(dbName);
     await db.createCollection(collectionMetadataName);
     const collectionModuleMetadata = db.collection(collectionMetadataName);

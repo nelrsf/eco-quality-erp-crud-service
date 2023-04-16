@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { RowsService } from './rows.service';
 import { RowsController } from './rows.controller';
 import { AppService } from 'src/app.service';
-import { ColumnsService } from 'src/columns/columns.service';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
+import { ColumnsService } from '../columns/columns.service';
 
 
 @Module({
