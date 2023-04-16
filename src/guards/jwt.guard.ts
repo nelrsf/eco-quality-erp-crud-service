@@ -1,6 +1,8 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import axios from 'axios';
+require('dotenv').config();
+
 
 @Injectable()
 export class JwtGuard implements NestInterceptor {
@@ -15,7 +17,7 @@ export class JwtGuard implements NestInterceptor {
     token = token.replace("Bearer ", "")
 
     try {
-      const response = await axios.post('http://localhost:3001/auth/validate', {  }, {
+      const response = await axios.post(process.env.AUTH_URL, {  }, {
         headers: {
             Authorization: token
         }
