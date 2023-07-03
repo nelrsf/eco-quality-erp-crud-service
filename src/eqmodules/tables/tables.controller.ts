@@ -3,14 +3,29 @@ import { TablesService } from './tables.service';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Table } from './entities/table.entity';
+import { CreateTableDto } from './dto/create-table.dto';
 
 @Controller('tables')
 export class TablesController {
   constructor(private readonly tablesService: TablesService, private errorHandler: ErrorDataHandler) { }
 
+  @Get('metadata/:module/:table')
+  getTableMetadata(@Res() res, @Param('module') module, @Param('table') table) {
+    return this.tablesService.getTableMetadata(module, table).then(
+      (metadata => {
+        res.status(HttpStatus.OK).json(metadata);
+      })
+    ).catch(
+      (error) => {
+        const errorData = this.errorHandler.getErrorObjectByCode(error);
+        res.status(errorData.status).json(errorData.message);
+      }
+    );
+  }
+
   @Post('create/:module/:table')
-  create(@Res() res, @Body() params: any) {
-    return this.tablesService.create(params.module, params.table).then(
+  create(@Res() res, @Body() params: CreateTableDto) {
+    return this.tablesService.create(params).then(
       (tables => {
         res.status(HttpStatus.OK).json(tables);
       })
@@ -24,9 +39,15 @@ export class TablesController {
 
   @Get('/:module')
   findAll(@Res() res, @Param('module') module) {
+    this.findAllByRoute(res, module, undefined);
+  }
+
+  @Get('/:module/:route')
+  findAllByRoute(@Res() res, @Param('module') module, @Param('route') route) {
     this.tablesService.findAll(module).then(
       (collections => {
-        res.status(HttpStatus.OK).json(collections);
+        const filteredCollections = this.tablesService.filterTablesByRoute(collections, route);
+        res.status(HttpStatus.OK).json(filteredCollections);
       })
     );
   }

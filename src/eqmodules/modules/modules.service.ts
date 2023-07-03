@@ -4,17 +4,16 @@ import { UpdateModuleDto } from './dto/update-module.dto';
 import { Module } from './entities/module.entity';
 import { Connection } from 'src/server/mongodb/connection';
 import { TablesService } from '../tables/tables.service';
+import { UsersTable } from '../tables/entities/UsersTable';
 
 @Injectable()
 export class ModulesService {
 
   public static MODULE_METADATA_TAG = "__module__metadata__";
-  private dbsToExclude: Array<string> = ['admin', 'local'];
+  private dbsToExclude: Array<string> = ['admin', 'local', '_eq__admin_manager'];
 
 
-  constructor(private tablesService: TablesService) {
-
-  }
+  constructor(private tablesService: TablesService) { }
 
   async findAll() {
     const client = Connection.getClient();
@@ -59,19 +58,51 @@ export class ModulesService {
       async (db) => {
         const tables = await this.tablesService.findAll(db.name);
         const filteredTables = this.tablesService.filterModuleMetadata(tables);
+        const copyTables = JSON.parse(JSON.stringify(filteredTables));
+        const nestedTables = this.nestTables(filteredTables, copyTables);
         const moduleMetadata = await this.findModuleMetadata(db.name);
         return {
           name: db.name,
           label: moduleMetadata?.label ? moduleMetadata.label : db.name,
           description: moduleMetadata?.description ? moduleMetadata.description : "",
-          tables: filteredTables
+          owner: moduleMetadata?.owner ? moduleMetadata?.owner : '',
+          tables: nestedTables
         }
       }
     ))
     return result;
   }
 
-  filterModules(modules) {
+  private nestTables(tables: Array<any>, allTables: Array<any>, routeFilter: string = "/") {
+    tables = tables.filter(
+      t => {
+        let lastSegment;
+        if(t.route !== '/'){
+          const segments = t.route.split('/');
+          lastSegment = segments[segments.length -1];
+        } else {
+          lastSegment = "/";
+        }
+
+        return lastSegment === routeFilter
+      });
+    tables.forEach(
+      (table: any) => {
+        if (table.isFolder) {
+          const subtables = allTables.filter(
+            t => {
+              const segments = t.route.split("/");
+              const location = segments[segments.length - 1];
+              return location === table.routeParam;
+            });
+          table.tables = this.nestTables(subtables, allTables, table.routeParam);
+        }
+      }
+    );
+    return tables;
+  }
+
+  filterModules(modules: Array<any>) {
     return modules.filter(
       m => {
         return !this.dbsToExclude.includes(m?.name);
@@ -80,16 +111,38 @@ export class ModulesService {
   }
 
 
-  async create(moduleName: string) {
-    const dbName = moduleName.replace(/ /g, "_");
+  async create(moduleName: string, userId: string) {
     const newClient = Connection.getClient();
+    await this.createModuleMetadataCollection(moduleName, userId, newClient);
+    await this.createUsersPerModuleCollection(moduleName, newClient);
+    return await this.findAll();
+  }
+
+  private async createModuleMetadataCollection(moduleName: string, userId: string, client: any) {
+    const dbName = this.formattName(moduleName);
     const collectionMetadataName = dbName + ModulesService.MODULE_METADATA_TAG;
-    const db = newClient.db(dbName);
+    const db = client.db(dbName);
     await db.createCollection(collectionMetadataName);
     const collectionModuleMetadata = db.collection(collectionMetadataName);
-    const documentModuleMetadata = new Module(dbName, moduleName, "descripcion de " + moduleName);
+    const documentModuleMetadata = new Module(dbName, moduleName, "descripcion de " + moduleName, userId);
     await collectionModuleMetadata.insertOne(documentModuleMetadata);
-    return await this.findAll();
+  }
+
+  private async createUsersPerModuleCollection(moduleName: string, client: any) {
+    const dbName = this.formattName(moduleName);
+    const db = client.db(dbName);
+    const collectionName = '__users_module_table__';
+    await db.createCollection(collectionName);
+    const usersModuleCollection = db.collection(collectionName);
+    let usersTable = new UsersTable(moduleName, collectionName)
+    await usersModuleCollection.insertOne(
+      usersTable.newTable
+    );
+  }
+
+
+  private formattName(value: string) {
+    return value.replace(/ /g, "_");
   }
 
   async upsertModuleConfiguration(module: Module) {

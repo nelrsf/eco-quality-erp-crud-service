@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus, UseInterceptors, Req } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
-import { JwtGuard } from 'src/guards/jwt.guard';
 require('dotenv').config();
 
 @Controller('modules')
@@ -11,8 +10,8 @@ export class ModulesController {
   constructor(private readonly modulesService: ModulesService, private errorHandler: ErrorDataHandler) { }
 
   @Post('/create')
-  create(@Res() res, @Body('module') module: string) {
-    return this.modulesService.create(module).then(
+  create(@Req() req, @Res() res, @Body('module') module: string) {
+    return this.modulesService.create(module, req.userId).then(
       (databases) => {
         const filteredDbs = this.modulesService.filterModules(databases);
         res.status(HttpStatus.OK).json(filteredDbs);

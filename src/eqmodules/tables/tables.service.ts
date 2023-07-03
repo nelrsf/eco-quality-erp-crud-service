@@ -4,28 +4,67 @@ import { UpdateTableDto } from './dto/update-table.dto';
 import { Connection } from 'src/server/mongodb/connection';
 import { ModulesService } from '../modules/modules.service';
 import { Table } from './entities/table.entity';
+import { CreateTableDto } from './dto/create-table.dto';
 
 @Injectable()
 export class TablesService {
 
-  constructor() {}
+  constructor() { }
 
-  async create(moduleName: string, tableName: string) {
+  async create(params: CreateTableDto) {
     const client = Connection.getClient();
-    const newCollection = await client.db(moduleName).createCollection(tableName);
+    const newCollection = await client.db(params.module).createCollection(params.table);
+    const parentRoute = await this.getParentRoute(params.route, client, params.module);
     await newCollection.insertOne({
       name__document_md: "document-metadata",
       table_metadata: {
-        module: moduleName,
-        table: tableName,
-        label: tableName,
-        description: "Descripción de " + tableName
+        module: params.table,
+        table: params.table,
+        ...(params.isFolder ? { isFolder: true } : {}),
+        ...(params.isFolder ? { routeParam: params.table } : {}),
+        ...(parentRoute && parentRoute !== '/' ? { route: parentRoute + '/' + params.route } : { route: params.route }),
+        label: params.table,
+        description: "Descripción de " + params.table
       }
     });
-    return await this.findAll(moduleName);
+    let tables = await this.findAll(params.module);
+    return this.filterTablesByRoute(tables, params.route);
   }
 
-  async findAll(dbName: string) {
+  private async getParentRoute(route: string, client: any, module: string) {
+    let parentRoute;
+    if (route) {
+      const routeSegments = route.split('/');;
+      const parentItem = await client
+        .db(module)
+        .collection(routeSegments[routeSegments.length - 1])
+        .findOne({ name__document_md: "document-metadata" });
+      parentRoute = parentItem.table_metadata.route;
+    }
+    return parentRoute;
+  }
+
+  filterTablesByRoute(tables: any[], route: string) {
+    if (!tables) {
+      return [];
+    }
+    if (!route) {
+      return tables.filter(
+        (table) => {
+          return !table.route || table.route === '/';
+        }
+      )
+    };
+    return tables.filter(
+      (table) => {
+        const segments = table.route.split('/');
+        const lastSegment = segments[segments.length - 1];
+        return lastSegment === route;
+      }
+    );
+  }
+
+  async findAll(dbName: string, routeFilter?: any) {
     const client = Connection.getClient();
     const collections = await client.db(dbName).listCollections().toArray();
     const tables = Promise.all(
@@ -38,6 +77,7 @@ export class TablesService {
             return {
               name: coll.name,
               label: coll.name,
+              route: "/",
               description: ""
             }
           }
@@ -45,12 +85,24 @@ export class TablesService {
           return {
             name: coll.name,
             label: tableMetadata?.label ? tableMetadata.label : coll.name,
+            isFolder: tableMetadata?.isFolder ? tableMetadata.isFolder : false,
+            route: tableMetadata?.route ? tableMetadata.route : "/",
+            routeParam: tableMetadata?.routeParam ? tableMetadata.routeParam : "",
             description: tableMetadata?.description ? tableMetadata.description : ""
           }
         }
       )
     )
     return this.filterModuleMetadata(await tables);
+  }
+
+  async getTableMetadata(module: string, table: string) {
+    const client = Connection.getClient();
+    const metadataDocument = await client
+      .db(module)
+      .collection(table)
+      .findOne({ name__document_md: 'document-metadata' });
+    return metadataDocument;
   }
 
   filterModuleMetadata(collections: Array<any>) {
@@ -82,11 +134,10 @@ export class TablesService {
         },
         {
           $set: {
-            table_metadata: {
-              name: table.name,
-              label: table.label,
-              description: table.description
-            }
+            'table_metadata.name': table.name,
+            'table_metadata.label': table.label,
+            'table_metadata.route': table.route,
+            'table_metadata.description': table.description
           }
         }
       );

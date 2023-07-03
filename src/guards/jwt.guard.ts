@@ -14,7 +14,7 @@ export class JwtGuard implements NestInterceptor {
       throw new HttpException('Token no suministrado', HttpStatus.UNAUTHORIZED);
     }
 
-    token = token.replace("Bearer ", "")
+    token = token.replace("Bearer ", "");
 
     try {
       const response = await axios.post(process.env.AUTH_URL, {  }, {
@@ -24,7 +24,8 @@ export class JwtGuard implements NestInterceptor {
       });
       if (!response.data.id) {
         throw new HttpException('Token invalido', HttpStatus.UNAUTHORIZED);
-      }
+      };
+      request.userId = response.data.id;
     } catch (error) {
       if (error.response.status === HttpStatus.UNAUTHORIZED) {
         throw new HttpException('Token invalido', HttpStatus.UNAUTHORIZED);

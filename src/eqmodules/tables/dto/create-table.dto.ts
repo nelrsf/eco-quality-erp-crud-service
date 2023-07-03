@@ -1,1 +1,7 @@
-export class CreateTableDto {}
+export class CreateTableDto {
+    module: string
+    table: string
+    route: string
+    isFolder
+
+}
