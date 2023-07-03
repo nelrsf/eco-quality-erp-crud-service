@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { Mongoose } from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +8,7 @@ import { ModulesModule } from './eqmodules/modules/modules.module';
 import { TablesModule } from './eqmodules/tables/tables.module';
 import { RowsModule } from './eqmodules/rows/rows.module';
 import { ColumnsModule } from './eqmodules/columns/columns.module';
+import { FilterUserModules } from './middlewares/FilterUserDatabases';
 
 
 @Module({
@@ -21,4 +22,13 @@ import { ColumnsModule } from './eqmodules/columns/columns.module';
   controllers: [AppController],
   providers: [AppService, ErrorDataHandler, Connection]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(
+      ...[
+        FilterUserModules
+      ]
+    ).forRoutes('/modules/')
+  }
+
+}
