@@ -37,6 +37,15 @@ export class TablesController {
     );
   }
 
+  @Get('/all/:module')
+  findFlat(@Res() res, @Param('module') module) {
+    this.tablesService.findAll(module).then(
+      (collections => {
+        res.status(HttpStatus.OK).json(collections);
+      })
+    );
+  }
+
   @Get('/:module')
   findAll(@Res() res, @Param('module') module) {
     this.findAllByRoute(res, module, undefined);

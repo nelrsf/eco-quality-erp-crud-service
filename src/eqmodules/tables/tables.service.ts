@@ -64,7 +64,7 @@ export class TablesService {
     );
   }
 
-  async findAll(dbName: string, routeFilter?: any) {
+  async findAll(dbName: string) {
     const client = Connection.getClient();
     const collections = await client.db(dbName).listCollections().toArray();
     const tables = Promise.all(

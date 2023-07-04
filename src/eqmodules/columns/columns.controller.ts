@@ -26,11 +26,11 @@ export class ColumnsController {
     );
   }
 
-  @Get('/:module/:table/:columnname')
-  findOne(@Res() res, @Param('columnname') columnname: string,
+  @Get('/:module/:table/:columnid')
+  findOne(@Res() res, @Param('columnid') columnnId: string,
     @Param('table') table: string,
     @Param('module') module: string) {
-    return this.columnsService.findOne(columnname, table, module).then(
+    return this.columnsService.findOne(columnnId, table, module).then(
       (data) => {
         res.status(HttpStatus.OK).json(data);
       }
@@ -48,7 +48,7 @@ export class ColumnsController {
 
   @Post('/delete')
   remove(@Res() res, @Body() updateColumnDto: UpdateColumnDto) {
-    return this.columnsService.remove(updateColumnDto.columnName, updateColumnDto.table, updateColumnDto.module).then(
+    return this.columnsService.remove(updateColumnDto._id, updateColumnDto.table, updateColumnDto.module).then(
       (data) => {
         res.status(HttpStatus.OK).json(data);
       }

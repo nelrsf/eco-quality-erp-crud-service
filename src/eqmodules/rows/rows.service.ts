@@ -24,9 +24,9 @@ export class RowsService {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);
     const objFilter = {};
-    objFilter[column] = value;
+    objFilter['_id'] = new ObjectId(column);
     const row = await collection.findOne(objFilter);
-    return row;
+    return row[value];
   }
 
   async findOneByIdAndColumn(module: string, table: string, column: string, id: string) {
