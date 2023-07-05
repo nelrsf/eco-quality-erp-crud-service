@@ -11,17 +11,19 @@ export class UsersTable {
           description: "Tabla de gestión de usuarios"
         },
         Email: {
+          _id: "Email",
           columnName: "Email",
           hidden: false,
           required: true,
           type: "string",
           module: this.moduleName,
           table: this.collectionName,
-          unique: false,
+          unique: true,
           width: 100,
           isRestricted: false
         },
         Nombre: {
+          _id: "Nombre",
           columnName: "Nombre",
           hidden: false,
           required: true,
@@ -33,10 +35,11 @@ export class UsersTable {
           isRestricted: false
         },
         ['Cambio de contraseña']: {
+          _id: "Cambio de contraseña",
           columnName: "Cambio de contraseña",
           hidden: false,
           required: true,
-          type: "string",
+          type: "boolean",
           module: this.moduleName,
           table: this.collectionName,
           unique: false,
@@ -44,10 +47,11 @@ export class UsersTable {
           isRestricted: false
         },
         ['Cuenta confirmada']: {
+          _id: "Cuenta confirmada",
           columnName: "Cuenta confirmada",
           hidden: false,
           required: true,
-          type: "string",
+          type: "boolean",
           module: this.moduleName,
           table: this.collectionName,
           unique: false,
