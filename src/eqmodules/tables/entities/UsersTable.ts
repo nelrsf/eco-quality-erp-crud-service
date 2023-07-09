@@ -1,12 +1,14 @@
 export class UsersTable {
 
-    constructor(private moduleName: string, private collectionName: string){}
+    constructor(private moduleName: string, private collectionName: string, private route?: string){}
 
     public newTable = {
         name__document_md: "document-metadata",
         table_metadata: {
           module: this.moduleName,
           table: this.collectionName,
+          routeParam: this.collectionName,
+          route: this.route ? this.route : '',
           label: "Usuarios",
           description: "Tabla de gestión de usuarios"
         },
@@ -34,29 +36,20 @@ export class UsersTable {
           width: 100,
           isRestricted: false
         },
-        ['Cambio de contraseña']: {
-          _id: "Cambio de contraseña",
-          columnName: "Cambio de contraseña",
+        Perfil: {
+          _id:"Perfil",
+          columnName: "Perfil",
           hidden: false,
-          required: true,
-          type: "boolean",
+          required: false,
+          type: "string",
           module: this.moduleName,
           table: this.collectionName,
           unique: false,
           width: 100,
-          isRestricted: false
-        },
-        ['Cuenta confirmada']: {
-          _id: "Cuenta confirmada",
-          columnName: "Cuenta confirmada",
-          hidden: false,
-          required: true,
-          type: "boolean",
-          module: this.moduleName,
-          table: this.collectionName,
-          unique: false,
-          width: 100,
-          isRestricted: false
+          isRestricted: true,
+          moduleRestriction: this.moduleName,
+          tableRestriction: "__profiles_module_table__",
+          columnRestriction:"Nombre"
         }
 
       }
