@@ -88,7 +88,8 @@ export class TablesService {
             isFolder: tableMetadata?.isFolder ? tableMetadata.isFolder : false,
             route: tableMetadata?.route ? tableMetadata.route : "/",
             routeParam: tableMetadata?.routeParam ? tableMetadata.routeParam : "",
-            description: tableMetadata?.description ? tableMetadata.description : ""
+            description: tableMetadata?.description ? tableMetadata.description : "",
+            permissions: tableMetadata?.permissions ? tableMetadata.permissions : "",
           }
         }
       )
@@ -123,7 +124,8 @@ export class TablesService {
           {
             name: table.name,
             label: table.label,
-            description: table.description
+            description: table.description,
+            permissions: table.permissions ? table.permissions : {}
           }
         }
       )
@@ -137,6 +139,7 @@ export class TablesService {
             'table_metadata.name': table.name,
             'table_metadata.label': table.label,
             'table_metadata.route': table.route,
+            'table_metadata.permissions': table.permissions ? table.permissions : {},
             'table_metadata.description': table.description
           }
         }

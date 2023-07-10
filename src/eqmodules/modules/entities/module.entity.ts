@@ -1,3 +1,5 @@
+import { permission } from "src/guards/Model/Permission"
+
 export class Module {
     name: string
     label: string
@@ -5,6 +7,7 @@ export class Module {
     owner: string
     isFolder: boolean
     routeParam: string
+    permissions: permission
 
     constructor(name: string, label: string, description: string, owner: string) {
         this.name = name;

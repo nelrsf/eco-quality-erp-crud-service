@@ -185,7 +185,8 @@ export class ModulesService {
         {
           name: module.name,
           label: module.label,
-          description: module.description
+          description: module.description,
+          permissions: module?.permissions ? module?.permissions : {}
         }
       )
     } else {
@@ -197,7 +198,8 @@ export class ModulesService {
           $set: {
             name: module.name,
             label: module.label,
-            description: module.description
+            description: module.description,
+            permissions: module?.permissions ? module?.permissions : {}
           }
         }
       );
