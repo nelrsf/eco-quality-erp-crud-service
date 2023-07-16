@@ -6,10 +6,11 @@ import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { TablesService } from '../tables/tables.service';
 import { TablesModule } from '../tables/tables.module';
 import { FilterUserModules } from 'src/middlewares/FilterUserDatabases';
+import { ModuleAdminGuard } from 'src/guards/module-admin.guard';
 
 @Module({
   controllers: [ModulesController],
-  providers: [ModulesService, TablesService, AppService, ErrorDataHandler],
+  providers: [ModulesService, TablesService, AppService, ErrorDataHandler, ModuleAdminGuard],
   imports: [
     TablesModule
   ]
