@@ -208,8 +208,11 @@ export class ModulesService {
   }
 
 
-  findOne(id: number) {
-    return `This action returns a #${id} module`;
+  async findOne(moduleName: string) {
+    const client = Connection.getClient();
+    const db = client.db(moduleName);
+    const collectionMetadata = db.collection(moduleName + '__module__metadata__');
+    return await collectionMetadata.findOne({ name: moduleName });
   }
 
   update(id: number, updateModuleDto: UpdateModuleDto) {

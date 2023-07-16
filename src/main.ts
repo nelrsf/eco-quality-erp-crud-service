@@ -4,7 +4,7 @@ import { JwtGuard } from './guards/jwt.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalInterceptors(new JwtGuard());
+  app.useGlobalGuards(new JwtGuard());
   app.enableCors(
     {
       origin: "*"

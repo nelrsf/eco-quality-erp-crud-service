@@ -14,13 +14,13 @@ import { FilterUserModules } from 'src/middlewares/FilterUserDatabases';
     TablesModule
   ]
 })
-export class ModulesModule implements NestModule{
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(
-      ...[
-        FilterUserModules
-      ]
-    ).forRoutes('/modules/')
-  } 
+export class ModulesModule /*implements NestModule*/{
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(
+  //     ...[
+  //       FilterUserModules
+  //     ]
+  //   ).forRoutes('/modules/')
+  // } 
   
  }

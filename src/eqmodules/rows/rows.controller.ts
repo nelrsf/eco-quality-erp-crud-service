@@ -49,13 +49,13 @@ export class RowsController {
   }
 
 
-  @Get('/:module/:table/:column/:value')
-  findOneByColumnAndValue(@Res() res, @Param() params: any) {
+  @Get('/filter/:module/:table/:column/:value')
+  findManyByColumnAndValue(@Res() res, @Param() params: any) {
     const module = params.module;
     const table = params.table;
     const column = params.column;
     const value = params.value;
-    return this.rowsService.findOneByColumnAndValue(module, table, column, value).then(
+    return this.rowsService.findManyByColumnAndValue(module, table, column, value).then(
       (response) => {
         res.status(HttpStatus.OK).json(response);
       }

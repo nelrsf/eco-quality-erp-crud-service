@@ -1,4 +1,4 @@
-export class permission {
+export class Permission {
     read: Array<string>
     edit: Array<string>
 

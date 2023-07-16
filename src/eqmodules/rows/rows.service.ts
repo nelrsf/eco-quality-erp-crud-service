@@ -20,13 +20,13 @@ export class RowsService {
     return await client.db(dbName).collection(tableName).find().toArray();
   }
 
-  async findOneByColumnAndValue(module, table, column, value){
+  async findManyByColumnAndValue(module, table, column, value) {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);
-    const objFilter = {};
-    objFilter['_id'] = new ObjectId(column);
-    const row = await collection.findOne(objFilter);
-    return row[value];
+    const rows = await collection.find({
+      [column]: value
+    }).toArray();
+    return rows;
   }
 
   async findOneByIdAndColumn(module: string, table: string, column: string, id: string) {
@@ -37,7 +37,7 @@ export class RowsService {
         _id: new ObjectId(id)
       }
     );
-    
+
     return row[column];
   }
 
@@ -49,7 +49,7 @@ export class RowsService {
         _id: new ObjectId(id)
       }
     );
-    
+
     return row;
   }
 
@@ -67,35 +67,35 @@ export class RowsService {
     return Promise.all(promises);
   }
 
-  findRestrictions(rows: any[]){
+  findRestrictions(rows: any[]) {
     return rows.find(
-      (row)=>{
+      (row) => {
         return row.__rows_restrictions__data__ !== undefined;
       }
     );
   }
 
-  async upsertRestrictions(module: string, table: string, updateRowDto: any){
+  async upsertRestrictions(module: string, table: string, updateRowDto: any) {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);
     const restrictions = this.findRestrictions(updateRowDto);
-    if(!restrictions){
+    if (!restrictions) {
       return;
     }
     const documentRestrictions = await collection.findOne(
       {
-        __rows_restrictions__data__ : "rows_restrictions"
+        __rows_restrictions__data__: "rows_restrictions"
       }
     )
-    if(!documentRestrictions){
+    if (!documentRestrictions) {
       collection.insertOne(restrictions);
     } else {
       collection.updateOne({
-        __rows_restrictions__data__ : "rows_restrictions"
+        __rows_restrictions__data__: "rows_restrictions"
       },
-      {
-        $set: restrictions
-      })
+        {
+          $set: restrictions
+        })
     }
   }
 

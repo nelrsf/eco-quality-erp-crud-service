@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { TablesService } from './tables.service';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Table } from './entities/table.entity';
 import { CreateTableDto } from './dto/create-table.dto';
+import { TableAdminGuard } from 'src/guards/table-admin.guard';
 
 @Controller('tables')
 export class TablesController {
@@ -61,8 +62,9 @@ export class TablesController {
     );
   }
 
+  @UseGuards(TableAdminGuard)
   @Post('/customize/:module')
-  customizeModule(@Res() res, @Param('module') module: string, @Body() table: Table): void {
+  customizeTable(@Res() res, @Param('module') module: string, @Body() table: Table): void {
     this.tablesService.upsertTableConfiguration(module, table).then(
       (result) => {
         res.status(HttpStatus.OK).json(result);

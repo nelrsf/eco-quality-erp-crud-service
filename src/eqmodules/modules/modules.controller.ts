@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus, UseInterceptors, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Res, HttpStatus, UseInterceptors, Req, UseGuards } from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { UpdateModuleDto } from './dto/update-module.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
+import { ModuleAdminGuard } from 'src/guards/module-admin.guard';
 require('dotenv').config();
 
 @Controller('modules')
@@ -47,6 +48,7 @@ export class ModulesController {
     );
   }
 
+  @UseGuards(ModuleAdminGuard)
   @Post('/customize')
   customizeModule(@Res() res, @Body() module: Module): void {
     this.modulesService.upsertModuleConfiguration(module).then(
@@ -56,9 +58,13 @@ export class ModulesController {
     );
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.modulesService.findOne(+id);
+  @Get('/findone/:module')
+  findOne(@Res() res, @Param('module') moduleName: string) {
+    return this.modulesService.findOne(moduleName).then(
+      (result) => {
+        res.status(HttpStatus.OK).json(result);
+      }
+    );
   }
 
   @Patch(':id')
