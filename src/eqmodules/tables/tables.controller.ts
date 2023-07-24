@@ -5,6 +5,8 @@ import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Table } from './entities/table.entity';
 import { CreateTableDto } from './dto/create-table.dto';
 import { TableAdminGuard } from 'src/guards/table-admin.guard';
+import { TableDeleteGuard } from 'src/guards/table-delete.guard';
+import { TableEditGuard } from 'src/guards/table-edit.guard';
 
 @Controller('tables')
 export class TablesController {
@@ -24,6 +26,7 @@ export class TablesController {
     );
   }
 
+  @UseGuards(TableEditGuard)
   @Post('create/:module/:table')
   create(@Res() res, @Body() params: CreateTableDto) {
     return this.tablesService.create(params).then(
@@ -82,6 +85,7 @@ export class TablesController {
     return this.tablesService.update(+id, updateTableDto);
   }
 
+  @UseGuards(TableDeleteGuard)
   @Post('delete/:module/:table')
   remove(@Param('module') module: string, @Param('table') table: string) {
     return this.tablesService.remove(module, table);

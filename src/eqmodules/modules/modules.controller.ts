@@ -4,6 +4,7 @@ import { UpdateModuleDto } from './dto/update-module.dto';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { Module } from './entities/module.entity';
 import { ModuleAdminGuard } from 'src/guards/module-admin.guard';
+import { ModuleDeleteGuard } from 'src/guards/module-delete.guard';
 require('dotenv').config();
 
 @Controller('modules')
@@ -72,6 +73,7 @@ export class ModulesController {
     return this.modulesService.update(+id, updateModuleDto);
   }
 
+  @UseGuards(ModuleDeleteGuard)
   @Post(':module')
   remove(@Res() res, @Body('module') module: string) {
     return this.modulesService.remove(module).then(
