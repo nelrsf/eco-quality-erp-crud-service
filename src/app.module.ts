@@ -12,6 +12,9 @@ import { FilterUserModules } from './middlewares/FilterUserDatabases';
 import { ModuleAdminGuard } from './guards/module-admin.guard';
 import { TableAdminGuard } from './guards/table-admin.guard';
 import { ColumnAdminGuard } from './guards/column-admin.guard';
+import { ModuleDeleteGuard } from './guards/module-delete.guard';
+import { TableEditGuard } from './guards/table-edit.guard';
+import { TableDeleteGuard } from './guards/table-delete.guard';
 
 
 @Module({
@@ -23,7 +26,17 @@ import { ColumnAdminGuard } from './guards/column-admin.guard';
     ColumnsModule
   ],
   controllers: [AppController],
-  providers: [AppService, ErrorDataHandler, Connection, ModuleAdminGuard, TableAdminGuard, ColumnAdminGuard]
+  providers: [
+    AppService, 
+    ErrorDataHandler, 
+    Connection, 
+    ModuleAdminGuard, 
+    TableAdminGuard, 
+    ColumnAdminGuard,
+    ModuleDeleteGuard,
+    TableEditGuard,
+    TableDeleteGuard
+  ]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
