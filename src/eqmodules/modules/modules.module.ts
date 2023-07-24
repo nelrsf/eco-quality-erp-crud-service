@@ -7,15 +7,22 @@ import { TablesService } from '../tables/tables.service';
 import { TablesModule } from '../tables/tables.module';
 import { FilterUserModules } from 'src/middlewares/FilterUserDatabases';
 import { ModuleAdminGuard } from 'src/guards/module-admin.guard';
+import { ModuleDeleteGuard } from 'src/guards/module-delete.guard';
 
 @Module({
   controllers: [ModulesController],
-  providers: [ModulesService, TablesService, AppService, ErrorDataHandler, ModuleAdminGuard],
+  providers: [
+    ModulesService,
+    TablesService,
+    AppService,
+    ErrorDataHandler,
+    ModuleAdminGuard,
+    ModuleDeleteGuard],
   imports: [
     TablesModule
   ]
 })
-export class ModulesModule /*implements NestModule*/{
+export class ModulesModule /*implements NestModule*/ {
   // configure(consumer: MiddlewareConsumer) {
   //   consumer.apply(
   //     ...[
@@ -23,5 +30,5 @@ export class ModulesModule /*implements NestModule*/{
   //     ]
   //   ).forRoutes('/modules/')
   // } 
-  
- }
+
+}
