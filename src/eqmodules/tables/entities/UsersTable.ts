@@ -1,3 +1,5 @@
+import { constants } from "src/constants";
+
 export class UsersTable {
 
     constructor(private moduleName: string, private collectionName: string, private route?: string){}
@@ -9,7 +11,7 @@ export class UsersTable {
           table: this.collectionName,
           routeParam: this.collectionName,
           route: this.route ? this.route : '',
-          label: "Usuarios",
+          label: this.collectionName,
           description: "Tabla de gestión de usuarios"
         },
         Email: {
@@ -48,7 +50,7 @@ export class UsersTable {
           width: 100,
           isRestricted: true,
           moduleRestriction: this.moduleName,
-          tableRestriction: "__profiles_module_table__",
+          tableRestriction: constants.profiesTable,
           columnRestriction:"Nombre"
         }
 

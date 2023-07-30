@@ -27,7 +27,7 @@ export class ProfilesTable {
             table: this.collectionName,
             routeParam: this.collectionName,
             route: this.route ? this.route : '',
-            label: "Perfiles",
+            label: this.collectionName,
             description: "Tabla de gestión de perfiles"
         },
         Nombre: {

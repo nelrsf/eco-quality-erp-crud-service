@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { ObjectId } from "mongodb";
+import { constants } from "src/constants";
 import { Connection } from "src/server/mongodb/connection";
 
 
@@ -33,7 +34,7 @@ export class FilterUserModules implements NestMiddleware {
             const foreignModules = await Promise.all(
                 restOfModules.map(
                     async (m: any) => {
-                        const foreignUser = await client.db(m.name).collection('__users_module_table__').findOne(
+                        const foreignUser = await client.db(m.name).collection(constants.usersTable).findOne(
                             { Email: user?.Email }
                         );
                         return {

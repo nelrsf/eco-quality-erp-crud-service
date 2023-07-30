@@ -7,6 +7,7 @@ import { TablesService } from '../tables/tables.service';
 import { UsersTable } from '../tables/entities/UsersTable';
 import { AdminFolder } from '../tables/entities/AdminFolder';
 import { ProfilesTable } from '../tables/entities/ProfilesTable';
+import { constants } from 'src/constants';
 
 @Injectable()
 export class ModulesService {
@@ -135,10 +136,10 @@ export class ModulesService {
   private async createUsersPerModuleCollection(moduleName: string, route: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = '__users_module_table__';
+    const collectionName = constants.usersTable;
     await db.createCollection(collectionName);
     const usersModuleCollection = db.collection(collectionName);
-    let usersTable = new UsersTable(moduleName, collectionName, route)
+    let usersTable = new UsersTable(dbName, collectionName, route)
     await usersModuleCollection.insertOne(
       usersTable.newTable
     );
@@ -147,10 +148,10 @@ export class ModulesService {
   private async createProfilesPerModuleCollection(moduleName: string, route: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = '__profiles_module_table__';
+    const collectionName = constants.profiesTable;
     await db.createCollection(collectionName);
     const usersModuleCollection = db.collection(collectionName);
-    let profilesTable = new ProfilesTable(moduleName, collectionName, route)
+    let profilesTable = new ProfilesTable(dbName, collectionName, route)
     await usersModuleCollection.insertOne(
       profilesTable.newTable
     );
@@ -162,9 +163,9 @@ export class ModulesService {
   private async creadeAdminFolder(moduleName: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = '__admin_module_folder__';
+    const collectionName = constants.adminFolder;
     const adminModuleCollection = db.collection(collectionName);
-    let adminFolder = new AdminFolder(moduleName, collectionName);
+    let adminFolder = new AdminFolder(dbName, collectionName);
     await adminModuleCollection.insertOne(
       adminFolder.newFolder
     );
@@ -173,7 +174,7 @@ export class ModulesService {
 
 
   private formattName(value: string) {
-    return value.replace(/ /g, "_");
+    return value.replace(/[^a-zA-Z0-9]/g, "");
   }
 
   async upsertModuleConfiguration(module: Module) {

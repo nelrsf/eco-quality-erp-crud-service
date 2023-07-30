@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Use
 import { ColumnsService } from './columns.service';
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
-import { TableAdminGuard } from 'src/guards/table-admin.guard';
 import { ColumnAdminGuard } from 'src/guards/column-admin.guard';
 
 @Controller('columns')

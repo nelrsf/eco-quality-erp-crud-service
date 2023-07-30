@@ -10,7 +10,7 @@ export class AdminFolder {
           routeParam: this.collectionName,
           route: this.route ? this.route : '',
           isFolder: true,
-          label: "Administración",
+          label: this.collectionName,
           description: "Administración del módulo"
         }
       }

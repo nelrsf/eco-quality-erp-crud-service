@@ -14,7 +14,7 @@ export class TablesService {
   async create(params: CreateTableDto) {
     const client = Connection.getClient();
     const newCollection = await client.db(params.module).createCollection(params.table);
-    const parentRoute = await this.getParentRoute(params.route, client, params.module);
+    const { parentRoute, labelRoute} = await this.getParentRoute(params.route, client, params.module);
     await newCollection.insertOne({
       name__document_md: "document-metadata",
       table_metadata: {
@@ -24,6 +24,7 @@ export class TablesService {
         ...(params.isFolder ? { routeParam: params.table } : {}),
         ...(parentRoute && parentRoute !== '/' ? { route: parentRoute + '/' + params.route } : { route: params.route }),
         label: params.table,
+        // ...(labelRoute && labelRoute !== '/' ? { labelRoute: labelRoute + '/' + params.table } : { labelRoute: params.table }),
         description: "Descripción de " + params.table
       }
     });
@@ -33,6 +34,7 @@ export class TablesService {
 
   private async getParentRoute(route: string, client: any, module: string) {
     let parentRoute;
+    let labelRoute;
     if (route) {
       const routeSegments = route.split('/');;
       const parentItem = await client
@@ -41,7 +43,7 @@ export class TablesService {
         .findOne({ name__document_md: "document-metadata" });
       parentRoute = parentItem.table_metadata.route;
     }
-    return parentRoute;
+    return { parentRoute, labelRoute };
   }
 
   filterTablesByRoute(tables: any[], route: string) {

@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ObjectId } from "mongodb";
+import { constants } from "src/constants";
 import { Connection } from "src/server/mongodb/connection";
 
 @Injectable()
@@ -24,12 +25,12 @@ export class TableDeleteGuard implements CanActivate {
         if (moduleMetadataDocument?.owner === userId) {
             return true;
         }
-        const usersModuleCollection = db.collection('__users_module_table__');
+        const usersModuleCollection = db.collection(constants.usersTable);
         const userPerModule = await usersModuleCollection.findOne({ Email: user.Email });
         if (!userPerModule) {
             throw new UnauthorizedException();
         }
-        const profilesCollection = db.collection('__profiles_module_table__');
+        const profilesCollection = db.collection(constants.profiesTable);
         const profile = await profilesCollection.findOne({ Nombre: userPerModule.Perfil });
         if (!profile) {
             throw new UnauthorizedException();

@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ObjectId } from "mongodb";
+import { constants } from "src/constants";
 import { Connection } from "src/server/mongodb/connection";
 
 @Injectable()
@@ -24,11 +25,11 @@ export class ModuleAdminGuard implements CanActivate {
         if (!user) {
             throw new UnauthorizedException('Error en la validación de permisos');
         }
-        const userPerModuleCollection = await client.db(module).collection('__users_module_table__');
+        const userPerModuleCollection = await client.db(module).collection(constants.usersTable);
         const userPerModule = await userPerModuleCollection.findOne({ Email: user.Email });
         const profileRestrictions = await userPerModuleCollection.findOne({ __rows_restrictions__data__: "rows_restrictions" });
         const profile = profileRestrictions.data.find((profileRes) => profileRes.rowId === userPerModule._id.toString());
-        const profileCollection = await client.db(module).collection('__profiles_module_table__');
+        const profileCollection = await client.db(module).collection(constants.profiesTable);
         const profileObject = await profileCollection.findOne({
             _id: new ObjectId(profile.rowIdRestriction
             )

@@ -22,13 +22,6 @@ import { ModuleDeleteGuard } from 'src/guards/module-delete.guard';
     TablesModule
   ]
 })
-export class ModulesModule /*implements NestModule*/ {
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer.apply(
-  //     ...[
-  //       FilterUserModules
-  //     ]
-  //   ).forRoutes('/modules/')
-  // } 
+export class ModulesModule {
 
 }
