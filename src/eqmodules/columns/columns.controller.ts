@@ -40,14 +40,6 @@ export class ColumnsController {
     );
   }
 
-  // @Patch('/update')
-  // update(@Res() res, @Body() updateColumnDto: UpdateColumnDto) {
-  //   return this.columnsService.update(updateColumnDto).then(
-  //     (data) => {
-  //       res.status(HttpStatus.OK).json(data);
-  //     }
-  //   );
-  // }
 
   @UseGuards(ColumnAdminGuard)
   @Post('/delete')

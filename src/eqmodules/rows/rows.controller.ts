@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, UseGuards } from '@nestjs/common';
 import { RowsService } from './rows.service';
 import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { ColumnsService } from '../columns/columns.service';
+import { RowEditGuard } from 'src/guards/row-edit.guard';
+import { RowDeleteGuard } from 'src/guards/row-delete.guard';
 
 @Controller('rows')
 export class RowsController {
   constructor(private readonly rowsService: RowsService,
     private readonly columnsService: ColumnsService, private errorHandler: ErrorDataHandler) { }
 
+  @UseGuards(RowEditGuard)
   @Post('/create/:module/:table')
   create(@Res() res, @Body() createRowDto: any, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.create(module, table, createRowDto).then(
@@ -87,6 +90,7 @@ export class RowsController {
     )
   }
 
+  @UseGuards(RowEditGuard)
   @Patch('/update/:module/:table')
   update(@Res() res, @Body() updateRowDto: any, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.update(module, table, updateRowDto).then(
@@ -95,7 +99,9 @@ export class RowsController {
       }
     );
   }
+  
 
+  @UseGuards(RowDeleteGuard)
   @Post('/delete/:module/:table')
   remove(@Res() res, @Body() deleteIds: any, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.remove(module, table, deleteIds).then(

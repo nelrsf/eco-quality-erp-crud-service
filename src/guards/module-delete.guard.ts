@@ -13,7 +13,7 @@ export class ModuleDeleteGuard implements CanActivate {
         const module = request.body?.module;
 
         const collection = await client.db(module).collection(module + '__module__metadata__');
-        const documentMetadata = await collection.findOne({ name: "4-CONTEXTO" });
+        const documentMetadata = await collection.findOne({ name: module });
         const owner = documentMetadata.owner;
 
 
