@@ -8,6 +8,7 @@ import { TablesModule } from '../tables/tables.module';
 import { FilterUserModules } from 'src/middlewares/FilterUserDatabases';
 import { ModuleAdminGuard } from 'src/guards/module-admin.guard';
 import { ModuleDeleteGuard } from 'src/guards/module-delete.guard';
+import { StructureConfiguration } from 'src/structure-configuration';
 
 @Module({
   controllers: [ModulesController],
@@ -17,7 +18,9 @@ import { ModuleDeleteGuard } from 'src/guards/module-delete.guard';
     AppService,
     ErrorDataHandler,
     ModuleAdminGuard,
-    ModuleDeleteGuard],
+    ModuleDeleteGuard,
+    StructureConfiguration
+  ],
   imports: [
     TablesModule
   ]

@@ -6,6 +6,7 @@ import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { TableAdminGuard } from 'src/guards/table-admin.guard';
 import { TableEditGuard } from 'src/guards/table-edit.guard';
 import { TableDeleteGuard } from 'src/guards/table-delete.guard';
+import { StructureConfiguration } from 'src/structure-configuration';
 
 @Module({
   controllers: [TablesController],
@@ -15,7 +16,9 @@ import { TableDeleteGuard } from 'src/guards/table-delete.guard';
     ErrorDataHandler,
     TableAdminGuard,
     TableEditGuard,
-    TableDeleteGuard],
+    TableDeleteGuard,
+    StructureConfiguration
+  ],
   exports: [
     TablesService
   ]

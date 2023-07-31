@@ -1,8 +1,4 @@
-import { constants } from "src/constants";
-
 export class UsersTable {
-
-    constructor(private moduleName: string, private collectionName: string, private route?: string){}
 
     public newTable = {
         name__document_md: "document-metadata",
@@ -50,9 +46,13 @@ export class UsersTable {
           width: 100,
           isRestricted: true,
           moduleRestriction: this.moduleName,
-          tableRestriction: constants.profiesTable,
+          tableRestriction: this.profiesTable,
           columnRestriction:"Nombre"
         }
+
+      }
+
+      constructor(private moduleName: string, private collectionName: string, private profiesTable: string, private route?: string){
 
       }
 }

@@ -1,10 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ObjectId } from "mongodb";
-import { constants } from "src/constants";
+import { StructureConfiguration} from "src/structure-configuration";
 import { Connection } from "src/server/mongodb/connection";
 
 @Injectable()
 export class TableAdminGuard implements CanActivate {
+
+    constructor(private config: StructureConfiguration){}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const httpContext = context.switchToHttp();
@@ -24,12 +26,12 @@ export class TableAdminGuard implements CanActivate {
         if(moduleMetadataDocument?.owner === userId){
             return true;
         }
-        const usersModuleCollection = db.collection(constants.usersTable);
+        const usersModuleCollection = db.collection(this.config.constants.usersTable);
         const userPerModule = await usersModuleCollection.findOne({ Email: user.Email });
         if (!userPerModule) {
             throw new UnauthorizedException();
         }
-        const profilesCollection = db.collection(constants.profiesTable);
+        const profilesCollection = db.collection(this.config.constants.profiesTable);
         const profile = await profilesCollection.findOne({ Nombre: userPerModule.Perfil });
         if(profile.EsAdmin){
             return true;

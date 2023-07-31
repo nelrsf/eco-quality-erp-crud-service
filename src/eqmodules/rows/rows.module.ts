@@ -6,6 +6,7 @@ import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { ColumnsService } from '../columns/columns.service';
 import { RowEditGuard } from 'src/guards/row-edit.guard';
 import { RowDeleteGuard } from 'src/guards/row-delete.guard';
+import { StructureConfiguration } from 'src/structure-configuration';
 
 
 @Module({
@@ -16,7 +17,8 @@ import { RowDeleteGuard } from 'src/guards/row-delete.guard';
     AppService, 
     ErrorDataHandler, 
     RowEditGuard,
-    RowDeleteGuard
+    RowDeleteGuard,
+    StructureConfiguration
   ]
 })
 export class RowsModule {}

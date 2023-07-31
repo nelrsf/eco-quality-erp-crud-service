@@ -17,6 +17,8 @@ import { TableEditGuard } from './guards/table-edit.guard';
 import { TableDeleteGuard } from './guards/table-delete.guard';
 import { RowEditGuard } from './guards/row-edit.guard';
 import { RowDeleteGuard } from './guards/row-delete.guard';
+import { StructureConfiguration } from './structure-configuration';
+
 
 
 @Module({
@@ -39,7 +41,8 @@ import { RowDeleteGuard } from './guards/row-delete.guard';
     TableEditGuard,
     TableDeleteGuard,
     RowEditGuard,
-    RowDeleteGuard
+    RowDeleteGuard,
+    StructureConfiguration
   ]
 })
 export class AppModule implements NestModule {

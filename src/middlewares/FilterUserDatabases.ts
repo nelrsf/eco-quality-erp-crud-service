@@ -1,11 +1,13 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { ObjectId } from "mongodb";
-import { constants } from "src/constants";
 import { Connection } from "src/server/mongodb/connection";
+import { StructureConfiguration } from "src/structure-configuration";
 
 
 @Injectable()
 export class FilterUserModules implements NestMiddleware {
+
+    constructor() { }
 
     use(req: any, res: any, next: (error?: any) => void) {
         const originalSend = res.send;
@@ -34,7 +36,8 @@ export class FilterUserModules implements NestMiddleware {
             const foreignModules = await Promise.all(
                 restOfModules.map(
                     async (m: any) => {
-                        const foreignUser = await client.db(m.name).collection(constants.usersTable).findOne(
+                        const config: StructureConfiguration = new StructureConfiguration();
+                        const foreignUser = await client.db(m.name).collection(config.constants.usersTable).findOne(
                             { Email: user?.Email }
                         );
                         return {

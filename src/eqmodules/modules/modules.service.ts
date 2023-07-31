@@ -7,7 +7,8 @@ import { TablesService } from '../tables/tables.service';
 import { UsersTable } from '../tables/entities/UsersTable';
 import { AdminFolder } from '../tables/entities/AdminFolder';
 import { ProfilesTable } from '../tables/entities/ProfilesTable';
-import { constants } from 'src/constants';
+import { StructureConfiguration } from 'src/structure-configuration';
+
 
 @Injectable()
 export class ModulesService {
@@ -16,7 +17,7 @@ export class ModulesService {
   private dbsToExclude: Array<string> = ['admin', 'local', '_eq__admin_manager'];
 
 
-  constructor(private tablesService: TablesService) { }
+  constructor(private tablesService: TablesService, private config: StructureConfiguration) { }
 
   async findAll() {
     const client = Connection.getClient();
@@ -136,10 +137,10 @@ export class ModulesService {
   private async createUsersPerModuleCollection(moduleName: string, route: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = constants.usersTable;
+    const collectionName = this.config.constants.usersTable;
     await db.createCollection(collectionName);
     const usersModuleCollection = db.collection(collectionName);
-    let usersTable = new UsersTable(dbName, collectionName, route)
+    let usersTable = new UsersTable(dbName, collectionName, this.config.constants.profiesTable, route)
     await usersModuleCollection.insertOne(
       usersTable.newTable
     );
@@ -148,7 +149,7 @@ export class ModulesService {
   private async createProfilesPerModuleCollection(moduleName: string, route: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = constants.profiesTable;
+    const collectionName = this.config.constants.profiesTable;
     await db.createCollection(collectionName);
     const usersModuleCollection = db.collection(collectionName);
     let profilesTable = new ProfilesTable(dbName, collectionName, route)
@@ -163,7 +164,7 @@ export class ModulesService {
   private async creadeAdminFolder(moduleName: string, client: any) {
     const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
-    const collectionName = constants.adminFolder;
+    const collectionName = this.config.constants.adminFolder;
     const adminModuleCollection = db.collection(collectionName);
     let adminFolder = new AdminFolder(dbName, collectionName);
     await adminModuleCollection.insertOne(
