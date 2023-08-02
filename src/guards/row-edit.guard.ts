@@ -13,6 +13,11 @@ export class RowEditGuard implements CanActivate {
         const request = httpContext.getRequest();
         const module = request.params.module;
         const table = request.params.table;
+
+        if(module=='_eq__admin_manager' && table == 'users'){
+            return true;
+        }
+
         const userId = request.userId;
         const client = Connection.getClient();
         const adminDb = client.db('_eq__admin_manager');
