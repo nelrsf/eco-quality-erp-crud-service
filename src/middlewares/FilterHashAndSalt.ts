@@ -5,12 +5,10 @@ import { Injectable, NestMiddleware } from "@nestjs/common";
 @Injectable()
 export class FilterHashAndSalt implements NestMiddleware {
 
-    constructor() { }
-
     use(req: any, res: any, next: (error?: any) => void) {
-        const originalSend = res.send;
-        res.send = async function (body: any) {
-            if(req.params.module === '_eq__admin_manager' && req.params.table === 'users'){
+        if (req.url.includes("/_eq__admin_manager/users")) {
+            const originalSend = res.send;
+            res.send = async function (body: any) {
                 let bodyObject = JSON.parse(body);
                 delete bodyObject.salt;
                 delete bodyObject.password;
