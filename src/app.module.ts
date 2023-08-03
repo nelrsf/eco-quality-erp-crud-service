@@ -18,6 +18,7 @@ import { TableDeleteGuard } from './guards/table-delete.guard';
 import { RowEditGuard } from './guards/row-edit.guard';
 import { RowDeleteGuard } from './guards/row-delete.guard';
 import { StructureConfiguration } from './structure-configuration';
+import { FilterHashAndSalt } from './middlewares/FilterHashAndSalt';
 
 
 
@@ -54,6 +55,12 @@ export class AppModule implements NestModule {
     ).exclude(
       { path: '/modules/findone/:module', method: RequestMethod.GET },
     ).forRoutes('/modules/')
+
+    consumer.apply(
+      ...[
+        FilterHashAndSalt
+      ]
+    ).forRoutes('/rows/')
   }
 
 }
