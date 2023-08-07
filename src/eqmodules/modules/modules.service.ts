@@ -8,6 +8,7 @@ import { UsersTable } from '../tables/entities/UsersTable';
 import { AdminFolder } from '../tables/entities/AdminFolder';
 import { ProfilesTable } from '../tables/entities/ProfilesTable';
 import { StructureConfiguration } from 'src/structure-configuration';
+import { v4 as uuidv4 } from 'uuid';
 
 
 @Injectable()
@@ -117,25 +118,25 @@ export class ModulesService {
 
   async create(moduleName: string, userId: string) {
     const newClient = Connection.getClient();
-    await this.createModuleMetadataCollection(moduleName, userId, newClient);
-    const adminRoute = await this.creadeAdminFolder(moduleName, newClient);
-    await this.createUsersPerModuleCollection(moduleName, adminRoute, newClient);
-    await this.createProfilesPerModuleCollection(moduleName, adminRoute, newClient);
+    const dbName = await this.createModuleMetadataCollection(moduleName, userId, newClient);
+    const adminRoute = await this.creadeAdminFolder(dbName, newClient);
+    await this.createUsersPerModuleCollection(dbName, adminRoute, newClient);
+    await this.createProfilesPerModuleCollection(dbName, adminRoute, newClient);
     return await this.findAll();
   }
 
   private async createModuleMetadataCollection(moduleName: string, userId: string, client: any) {
-    const dbName = this.formattName(moduleName);
+    const dbName = uuidv4()
     const collectionMetadataName = dbName + ModulesService.MODULE_METADATA_TAG;
     const db = client.db(dbName);
     await db.createCollection(collectionMetadataName);
     const collectionModuleMetadata = db.collection(collectionMetadataName);
     const documentModuleMetadata = new Module(dbName, moduleName, "descripcion de " + moduleName, userId);
     await collectionModuleMetadata.insertOne(documentModuleMetadata);
+    return dbName;
   }
 
-  private async createUsersPerModuleCollection(moduleName: string, route: string, client: any) {
-    const dbName = this.formattName(moduleName);
+  private async createUsersPerModuleCollection(dbName: string, route: string, client: any) {
     const db = client.db(dbName);
     const collectionName = this.config.constants.usersTable;
     await db.createCollection(collectionName);
@@ -146,13 +147,13 @@ export class ModulesService {
     );
   }
 
-  private async createProfilesPerModuleCollection(moduleName: string, route: string, client: any) {
-    const dbName = this.formattName(moduleName);
+  private async createProfilesPerModuleCollection(dbName: string, route: string, client: any) {
+    // const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
     const collectionName = this.config.constants.profiesTable;
     await db.createCollection(collectionName);
     const usersModuleCollection = db.collection(collectionName);
-    let profilesTable = new ProfilesTable(dbName, collectionName, route)
+    let profilesTable = new ProfilesTable(dbName, collectionName, route);
     await usersModuleCollection.insertOne(
       profilesTable.newTable
     );
@@ -161,8 +162,8 @@ export class ModulesService {
     );
   }
 
-  private async creadeAdminFolder(moduleName: string, client: any) {
-    const dbName = this.formattName(moduleName);
+  private async creadeAdminFolder(dbName: string, client: any) {
+    // const dbName = this.formattName(moduleName);
     const db = client.db(dbName);
     const collectionName = this.config.constants.adminFolder;
     const adminModuleCollection = db.collection(collectionName);

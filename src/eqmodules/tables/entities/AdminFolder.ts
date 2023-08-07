@@ -1,11 +1,11 @@
 export class AdminFolder {
 
-    constructor(private moduleName: string, private collectionName: string, private route?: string){}
+    constructor(private dbName: string, private collectionName: string, private route?: string){}
 
     public newFolder = {
         name__document_md: "document-metadata",
         table_metadata: {
-          module: this.moduleName,
+          module: this.dbName,
           table: this.collectionName,
           routeParam: this.collectionName,
           route: this.route ? this.route : '',

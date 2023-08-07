@@ -3,7 +3,7 @@ export class UsersTable {
     public newTable = {
         name__document_md: "document-metadata",
         table_metadata: {
-          module: this.moduleName,
+          module: this.dbName,
           table: this.collectionName,
           routeParam: this.collectionName,
           route: this.route ? this.route : '',
@@ -16,7 +16,7 @@ export class UsersTable {
           hidden: false,
           required: true,
           type: "string",
-          module: this.moduleName,
+          module: this.dbName,
           table: this.collectionName,
           unique: true,
           width: 100,
@@ -28,7 +28,7 @@ export class UsersTable {
           hidden: false,
           required: true,
           type: "string",
-          module: this.moduleName,
+          module: this.dbName,
           table: this.collectionName,
           unique: false,
           width: 100,
@@ -40,19 +40,19 @@ export class UsersTable {
           hidden: false,
           required: false,
           type: "string",
-          module: this.moduleName,
+          module: this.dbName,
           table: this.collectionName,
           unique: false,
           width: 100,
           isRestricted: true,
-          moduleRestriction: this.moduleName,
+          moduleRestriction: this.dbName,
           tableRestriction: this.profiesTable,
           columnRestriction:"Nombre"
         }
 
       }
 
-      constructor(private moduleName: string, private collectionName: string, private profiesTable: string, private route?: string){
+      constructor(private dbName: string, private collectionName: string, private profiesTable: string, private route?: string){
 
       }
 }

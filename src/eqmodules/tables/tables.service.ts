@@ -5,6 +5,7 @@ import { Connection } from 'src/server/mongodb/connection';
 import { ModulesService } from '../modules/modules.service';
 import { Table } from './entities/table.entity';
 import { CreateTableDto } from './dto/create-table.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class TablesService {
@@ -13,7 +14,8 @@ export class TablesService {
 
   async create(params: CreateTableDto) {
     const client = Connection.getClient();
-    const newCollection = await client.db(params.module).createCollection(params.table);
+    const collectionName = uuidv4();
+    const newCollection = await client.db(params.module).createCollection(collectionName);
     const { parentRoute, labelRoute} = await this.getParentRoute(params.route, client, params.module);
     await newCollection.insertOne({
       name__document_md: "document-metadata",
@@ -21,7 +23,7 @@ export class TablesService {
         module: params.table,
         table: params.table,
         ...(params.isFolder ? { isFolder: true } : {}),
-        ...(params.isFolder ? { routeParam: params.table } : {}),
+        ...(params.isFolder ? { routeParam: collectionName } : {}),
         ...(parentRoute && parentRoute !== '/' ? { route: parentRoute + '/' + params.route } : { route: params.route }),
         label: params.table,
         // ...(labelRoute && labelRoute !== '/' ? { labelRoute: labelRoute + '/' + params.table } : { labelRoute: params.table }),
