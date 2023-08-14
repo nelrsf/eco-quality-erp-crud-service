@@ -53,6 +53,14 @@ export class RowsService {
     return row;
   }
 
+  async updateByRowAndColumn(module: string, table: string, column: string, rowId: string, updateRowDto: any) {
+    const client = Connection.getClient();
+    const filter = { _id: new ObjectId(rowId) };
+    const update = { $set: { [column]: updateRowDto } };
+    const promise = client.db(module).collection(table).updateOne(filter, update);
+    return await promise;
+  }
+
   async update(module: string, table: string, updateRowDto: any) {
     await this.upsertRestrictions(module, table, updateRowDto);
     const promises = [];

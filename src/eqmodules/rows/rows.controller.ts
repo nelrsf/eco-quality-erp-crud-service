@@ -99,6 +99,16 @@ export class RowsController {
       }
     );
   }
+
+  @UseGuards(RowEditGuard)
+  @Patch('/update/:module/:table/:column/:rowId')
+  updateByRowAndColumn(@Res() res, @Body() updateRowDto: any, @Param('module') module: string, @Param('table') table: string, @Param('column') column: string, @Param('rowId') rowId: string) {
+    return this.rowsService.updateByRowAndColumn(module, table, column, rowId, updateRowDto).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
+  }
   
 
   @UseGuards(RowDeleteGuard)
