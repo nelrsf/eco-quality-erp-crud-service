@@ -9,6 +9,8 @@ export class CreateColumnDto {
     module: string
     table: string
     unique: boolean
+    formOrder: number
+    columnOrder: number
     moduleRestriction?: string
     tableRestriction?: string
     columnRestriction?: string

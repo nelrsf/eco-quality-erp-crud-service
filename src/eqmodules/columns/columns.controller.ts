@@ -15,6 +15,10 @@ export class ColumnsController {
       (data) => {
         res.status(HttpStatus.OK).json(data);
       }
+    ).catch(
+      (error)=>{
+        res.status(HttpStatus.FORBIDDEN).json(error);
+      }
     );
   }
 

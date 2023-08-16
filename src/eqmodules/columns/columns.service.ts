@@ -43,16 +43,17 @@ export class ColumnsService {
       const columnId = uuidv4();
       createColumnDto._id = columnId;
     };
+    let upsertResult;
     if (!documentMetadata) {
       const newDoccumentMetadata = { name__document_md: "document-metadata" };
       newDoccumentMetadata[createColumnDto._id] = createColumnDto;
-      await collection.insertOne(newDoccumentMetadata);
+      upsertResult = await collection.insertOne(newDoccumentMetadata);
       await this.createIndexToUniqueColumn(createColumnDto);
       await this.deleteIndexFromUniqueColumn(createColumnDto);
-      return {}
+      return upsertResult;
     }
     documentMetadata[createColumnDto._id] = createColumnDto;
-    await collection.updateOne(
+    upsertResult = await collection.updateOne(
       {
         name__document_md: "document-metadata"
       },
@@ -62,7 +63,7 @@ export class ColumnsService {
     );
     await this.createIndexToUniqueColumn(createColumnDto);
     await this.deleteIndexFromUniqueColumn(createColumnDto);
-    return {}
+    return upsertResult;
   }
 
   private async createIndexToUniqueColumn(createColumnDto: CreateColumnDto) {
