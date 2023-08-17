@@ -12,7 +12,7 @@ export class ErrorDataHandler {
             status: HttpStatus.CONFLICT,
             message: (key: string, value: string): string =>
             {
-                return `El campo ${key} con valor ${value} está duplicado`
+                return `Existe un con valor ${value}, el cual ya está incluido en una columna con valor único`
             }            
         },
         {
