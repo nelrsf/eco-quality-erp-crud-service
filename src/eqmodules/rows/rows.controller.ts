@@ -97,6 +97,11 @@ export class RowsController {
       (response) => {
         res.status(HttpStatus.OK).json(response);
       }
+    ).catch(
+      (error) => {
+        const errorData = this.errorHandler.getErrorObjectByCode(error);
+        res.status(errorData.status).json(errorData.message);
+      }
     );
   }
 
