@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class ModulesService {
 
   public static MODULE_METADATA_TAG = "__module__metadata__";
-  private dbsToExclude: Array<string> = ['admin', 'local', '_eq__admin_manager'];
+  private dbsToExclude: Array<string> = ['admin', 'local', 'config', '_eq__admin_manager'];
 
 
   constructor(private tablesService: TablesService, private config: StructureConfiguration) { }
@@ -46,6 +46,11 @@ export class ModulesService {
       const client = Connection.getClient();
       const moduleMetadata = client.db(moduleName).collection(moduleName + ModulesService.MODULE_METADATA_TAG);
       const moduleMetadataDocument = await moduleMetadata.findOne({ name: moduleName });
+
+      if (moduleMetadataDocument === null) {
+        throw new Error('Module metadata not found');
+      }
+
       return moduleMetadataDocument;
     } catch {
       return {
