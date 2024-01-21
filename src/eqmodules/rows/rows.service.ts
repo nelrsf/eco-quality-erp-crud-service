@@ -29,6 +29,19 @@ export class RowsService {
     return rows;
   }
 
+  async findManyByColumnAndSimilarValue(module, table, column, value) {
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
+  
+    const regex = new RegExp(value, 'i');
+  
+    const rows = await collection.find({
+      [column]: regex
+    }).toArray();
+  
+    return rows;
+  }
+
   async findOneByIdAndColumn(module: string, table: string, column: string, id: string) {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);

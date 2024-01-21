@@ -65,6 +65,19 @@ export class RowsController {
     );
   }
 
+  @Get('/filter/similar/:module/:table/:column/:value')
+  findManyByColumnAndSimilarValue(@Res() res, @Param() params: any) {
+    const module = params.module;
+    const table = params.table;
+    const column = params.column;
+    const value = params.value;
+    return this.rowsService.findManyByColumnAndSimilarValue(module, table, column, value).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
+  }
+
   @Get('/:module/:table/:id/:column')
   findOneByRowIdAndColumn(@Res() res, @Param() params: any) {
     const module = params.module;
