@@ -32,13 +32,13 @@ export class RowsService {
   async findManyByColumnAndSimilarValue(module, table, column, value) {
     const client = Connection.getClient();
     const collection = client.db(module).collection(table);
-  
+
     const regex = new RegExp(value, 'i');
-  
+
     const rows = await collection.find({
       [column]: regex
     }).toArray();
-  
+
     return rows;
   }
 
@@ -72,6 +72,62 @@ export class RowsService {
     const update = { $set: { [column]: updateRowDto } };
     const promise = client.db(module).collection(table).updateOne(filter, update);
     return await promise;
+  }
+
+  async getRestrictionByIdAndColumn(module: string, table: string, columnId: string, rowId: string) {
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
+    const documentRestrictions = await collection.findOne(
+      {
+        __rows_restrictions__data__: "rows_restrictions"
+      }
+    )
+    if (!documentRestrictions && !documentRestrictions?.data) {
+      return;
+    }
+    return documentRestrictions.data.find(
+      (cellRes: any) => {
+        return cellRes.column._id === columnId && cellRes.rowId == rowId;
+      }
+    )
+  }
+
+  async updateRestrictions(module: string, table: string, updateRestrictionsDto: any) {
+    const client = Connection.getClient();
+    const collection = client.db(module).collection(table);
+    const documentRestrictions = await collection.findOne(
+      {
+        __rows_restrictions__data__: "rows_restrictions"
+      }
+    )
+    if (!documentRestrictions) {
+      collection.insertOne({
+        __rows_restrictions__data__: "rows_restrictions",
+        data: updateRestrictionsDto
+      });
+    } else {
+      updateRestrictionsDto.forEach(
+        (res: any) => {
+          const resIndex = documentRestrictions?.data?.findIndex(
+            (r: any) => {
+              return r.column._id === res.column._id && r.rowId === res.rowId
+            }
+          )
+          if (resIndex > -1) {
+            documentRestrictions.data[resIndex] = res;
+          } else {
+            documentRestrictions?.data?.push(...updateRestrictionsDto);
+          }
+        }
+      )
+
+      collection.updateOne({
+        __rows_restrictions__data__: "rows_restrictions"
+      },
+        {
+          $set: documentRestrictions
+        })
+    }
   }
 
   async update(module: string, table: string, updateRowDto: any) {

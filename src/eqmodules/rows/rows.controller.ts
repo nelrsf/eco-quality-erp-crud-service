@@ -91,6 +91,20 @@ export class RowsController {
     );
   }
 
+
+  @Get('restrictions/:module/:table/:id/:column')
+  findRestrictionByRowIdAndColumn(@Res() res, @Param() params: any) {
+    const module = params.module;
+    const table = params.table;
+    const column = params.column;
+    const id = params.id;
+    return this.rowsService.getRestrictionByIdAndColumn(module, table, column, id).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
+  }
+
   @Get('/:module/:table/:id')
   findOneByRowId(@Res() res, @Param() params: any) {
     const module = params.module;
@@ -127,7 +141,16 @@ export class RowsController {
       }
     );
   }
-  
+
+  @UseGuards(RowEditGuard)
+  @Patch('/updaterestrictions/:module/:table')
+  updateRestrictions(@Res() res, @Body() updateRestrictionsDto: any, @Param('module') module: string, @Param('table') table: string) {
+    return this.rowsService.updateRestrictions(module, table, updateRestrictionsDto).then(
+      (response) => {
+        res.status(HttpStatus.OK).json(response);
+      }
+    );
+  }
 
   @UseGuards(RowDeleteGuard)
   @Post('/delete/:module/:table')
