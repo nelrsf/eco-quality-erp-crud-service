@@ -23,6 +23,7 @@ import { FilterReadableTables } from './middlewares/FilterReadableTables';
 import { FilterReadableModulesTables } from './middlewares/FilterReadableModulesTables';
 import { FilterReadableColumns } from './middlewares/FilterReadableColumns';
 import { FilterReadableColumn } from './middlewares/FilterReadableColumn';
+import { TableReadGuard } from './guards/table-read.guard';
 
 
 
@@ -45,6 +46,7 @@ import { FilterReadableColumn } from './middlewares/FilterReadableColumn';
     ModuleDeleteGuard,
     TableEditGuard,
     TableDeleteGuard,
+    TableReadGuard,
     RowEditGuard,
     RowDeleteGuard,
     StructureConfiguration
