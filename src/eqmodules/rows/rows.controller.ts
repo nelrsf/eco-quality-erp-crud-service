@@ -4,6 +4,7 @@ import { ErrorDataHandler } from 'src/errorsHandler/errorsDictionary';
 import { ColumnsService } from '../columns/columns.service';
 import { RowEditGuard } from 'src/guards/row-edit.guard';
 import { RowDeleteGuard } from 'src/guards/row-delete.guard';
+import { TableReadGuard } from 'src/guards/table-read.guard';
 
 @Controller('rows')
 export class RowsController {
@@ -25,6 +26,7 @@ export class RowsController {
     );
   }
 
+  @UseGuards(TableReadGuard)
   @Get('/:module/:table')
   findAll(@Res() res, @Param('module') module: string, @Param('table') table: string) {
     return this.rowsService.findAll(module, table).then(
@@ -52,6 +54,7 @@ export class RowsController {
   }
 
 
+  @UseGuards(TableReadGuard)
   @Get('/filter/:module/:table/:column/:value')
   findManyByColumnAndValue(@Res() res, @Param() params: any) {
     const module = params.module;
@@ -65,6 +68,7 @@ export class RowsController {
     );
   }
 
+  @UseGuards(TableReadGuard)
   @Get('/filter/similar/:module/:table/:column/:value')
   findManyByColumnAndSimilarValue(@Res() res, @Param() params: any) {
     const module = params.module;
@@ -78,6 +82,7 @@ export class RowsController {
     );
   }
 
+  @UseGuards(TableReadGuard)
   @Get('/:module/:table/:id/:column')
   findOneByRowIdAndColumn(@Res() res, @Param() params: any) {
     const module = params.module;
@@ -92,6 +97,7 @@ export class RowsController {
   }
 
 
+  @UseGuards(TableReadGuard)
   @Get('restrictions/:module/:table/:id/:column')
   findRestrictionByRowIdAndColumn(@Res() res, @Param() params: any) {
     const module = params.module;
@@ -105,6 +111,7 @@ export class RowsController {
     );
   }
 
+  @UseGuards(TableReadGuard)
   @Get('/:module/:table/:id')
   findOneByRowId(@Res() res, @Param() params: any) {
     const module = params.module;

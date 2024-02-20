@@ -19,6 +19,10 @@ import { RowEditGuard } from './guards/row-edit.guard';
 import { RowDeleteGuard } from './guards/row-delete.guard';
 import { StructureConfiguration } from './structure-configuration';
 import { FilterHashAndSalt } from './middlewares/FilterHashAndSalt';
+import { FilterReadableTables } from './middlewares/FilterReadableTables';
+import { FilterReadableModulesTables } from './middlewares/FilterReadableModulesTables';
+import { FilterReadableColumns } from './middlewares/FilterReadableColumns';
+import { FilterReadableColumn } from './middlewares/FilterReadableColumn';
 
 
 
@@ -32,11 +36,11 @@ import { FilterHashAndSalt } from './middlewares/FilterHashAndSalt';
   ],
   controllers: [AppController],
   providers: [
-    AppService, 
-    ErrorDataHandler, 
-    Connection, 
-    ModuleAdminGuard, 
-    TableAdminGuard, 
+    AppService,
+    ErrorDataHandler,
+    Connection,
+    ModuleAdminGuard,
+    TableAdminGuard,
     ColumnAdminGuard,
     ModuleDeleteGuard,
     TableEditGuard,
@@ -61,6 +65,44 @@ export class AppModule implements NestModule {
         FilterHashAndSalt
       ]
     ).forRoutes('/rows/')
+
+    consumer.apply(
+      ...[
+        FilterReadableTables
+      ]
+    ).exclude(
+      { path: '/tables/metadata/:module/:table', method: RequestMethod.GET }
+    )
+      .forRoutes(
+        '/tables/all/:module',
+        '/tables/:module/:route',
+        '/tables/:module')
+
+    consumer.apply(
+      ...[
+        FilterReadableModulesTables
+      ]
+    ).forRoutes(
+      '/modules/modulestables')
+
+    consumer.apply(
+      ...[
+        FilterReadableColumns
+      ]
+    ).exclude(
+      { path: '/columns/:module/:table/:columnid', method: RequestMethod.GET }
+    ).forRoutes(
+      '/columns/:module/:table')
+
+    consumer.apply(
+      ...[
+        FilterReadableColumn
+      ]
+    ).exclude(
+      { path: '/columns/:module/:table', method: RequestMethod.GET }
+    ).forRoutes(
+      '/columns/:module/:table/:columnid')
   }
+
 
 }

@@ -7,6 +7,7 @@ import { CreateTableDto } from './dto/create-table.dto';
 import { TableAdminGuard } from 'src/guards/table-admin.guard';
 import { TableDeleteGuard } from 'src/guards/table-delete.guard';
 import { TableEditGuard } from 'src/guards/table-edit.guard';
+import { TableReadGuard } from 'src/guards/table-read.guard';
 
 @Controller('tables')
 export class TablesController {
