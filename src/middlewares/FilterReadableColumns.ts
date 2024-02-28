@@ -4,6 +4,7 @@ import { isOwner } from "./functions/isOwner";
 import { isAdmin } from "./functions/isAdmin";
 import { getProfile } from "./functions/getProfile";
 import { Column } from "src/eqmodules/columns/entities/column.entity";
+import { modifyReadPermissions } from "./functions/modifyReadPermissions";
 
 
 
@@ -23,19 +24,22 @@ export class FilterReadableColumns implements NestMiddleware {
             const isUserOwner = await isOwner(req.params.module, req.userId);
             const isUserAdmin = await isAdmin(req.params.module, req.userId);
 
-            if(isUserAdmin || isUserOwner){
+            if (isUserAdmin || isUserOwner) {
                 originalSend.call(this, JSON.stringify(bodyObject));
                 return;
             }
             const profile = await getProfile(req.params.module, req.userId)
 
-            Object.keys(bodyObject).forEach(
-                (columnId: string) => {
-                    if (!bodyObject[columnId]?.permissions?.read?.includes(profile?._id?.toString())) {
-                        delete bodyObject[columnId];
-                    } 
-                }
-            )
+            // Object.keys(bodyObject).forEach(
+            //     (columnId: string) => {
+            //         if (bodyObject[columnId]?.permissions?.read?.includes(profile?._id?.toString())) {
+            //             bodyObject[columnId].permissions.read = [profile?._id?.toString()]
+            //         } else {
+            //             delete bodyObject[columnId];
+            //         }
+            //     }
+            // )
+            bodyObject = modifyReadPermissions(bodyObject, profile);
 
             originalSend.call(this, JSON.stringify(bodyObject));
         }

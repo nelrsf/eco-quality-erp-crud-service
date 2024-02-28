@@ -13,8 +13,10 @@ export class RowsController {
 
   @UseGuards(RowEditGuard)
   @Post('/create/:module/:table')
-  create(@Res() res, @Body() createRowDto: any, @Param('module') module: string, @Param('table') table: string) {
-    return this.rowsService.create(module, table, createRowDto).then(
+  create(@Res() res, @Body() createRowDto: { row: any, restrictions: Array<any> }, @Param('module') module: string, @Param('table') table: string) {
+    const row = createRowDto.row;
+    const restrictions = createRowDto.restrictions;
+    return this.rowsService.create(module, table, row, restrictions).then(
       (response) => {
         res.status(HttpStatus.OK).json(response);
       }

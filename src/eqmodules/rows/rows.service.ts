@@ -1,19 +1,61 @@
 import { Injectable } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
 import { Connection } from 'src/server/mongodb/connection';
+import { ColumnsService } from '../columns/columns.service';
+import { Column } from '../columns/entities/column.entity';
 
 @Injectable()
 export class RowsService {
 
-  constructor() { }
+  constructor(private columnsService: ColumnsService) { }
 
 
-  create(module: string, table: string, createRowDto: any) {
+  async create(module: string, table: string, row: any, restrictions?: Array<any>) {
     const client = Connection.getClient();
-    return client.db(module).collection(table).insertOne(
-      createRowDto
-    )
+    await client.db(module).collection(table).insertOne(row);
+    if (restrictions) {
+      await this.updateRestrictions(module, table, restrictions);
+      row = this.insertRestrictionsValues(row, restrictions, module, table);
+    }
+    return row;
   }
+
+  private async insertRestrictionsValues(row: any, restrictions: Array<any>, module: string, table: string) {
+    const columns = await this.columnsService.findAll(table, module);
+    const columnsNames = Object.keys(columns);
+
+    const columnPromises = columnsNames.map(async (columnN) => {
+      const col = columns[columnN];
+      if (col && col.isRestricted) {
+        const res = restrictions.find(r => r?.column?._id === col?._id);
+        if (!res) {
+          return null;
+        }
+        return this.findOneByIdAndColumn(col.moduleRestriction, col.tableRestriction, col.columnRestriction, res.rowIdRestriction)
+          .then(result => ({ columnId: col._id, value: result }))
+          .catch(error => {
+            console.error(`Error fetching data for column ${col._id}: ${error}`);
+            return null;
+          });
+      }
+      return null;
+    }).filter(promise => promise !== null); 
+
+    await Promise.all(columnPromises).then(results => {
+
+      results.forEach(result => {
+        if (result) { 
+          row[result.columnId] = result.value;
+        }
+      });
+    }).catch(error => {
+      console.error(`An error occurred: ${error}`);
+    });
+
+    return row;
+
+  }
+
 
   async findAll(dbName: string, tableName: string) {
     const client = Connection.getClient();
@@ -51,7 +93,8 @@ export class RowsService {
       }
     );
 
-    return row[column];
+
+    return row ? row[column] : null;
   }
 
   async findOneById(module: string, table: string, id: string) {
@@ -121,7 +164,7 @@ export class RowsService {
         }
       )
 
-      collection.updateOne({
+      return collection.updateOne({
         __rows_restrictions__data__: "rows_restrictions"
       },
         {

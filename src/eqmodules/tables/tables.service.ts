@@ -16,17 +16,17 @@ export class TablesService {
     const client = Connection.getClient();
     const collectionName = uuidv4();
     const newCollection = await client.db(params.module).createCollection(collectionName);
-    const { parentRoute, labelRoute} = await this.getParentRoute(params.route, client, params.module);
+    const { parentRoute, labelRoute } = await this.getParentRoute(params.route, client, params.module);
     await newCollection.insertOne({
       name__document_md: "document-metadata",
       table_metadata: {
-        module: params.table,
-        table: params.table,
-        ...(params.isFolder ? { isFolder: true } : {}),
+        // module: params.module,
+        // table: params.table,
+        ...params,
+        // ...(params.isFolder ? { isFolder: true } : {}),
         ...(params.isFolder ? { routeParam: collectionName } : {}),
         ...(parentRoute && parentRoute !== '/' ? { route: parentRoute + '/' + params.route } : { route: params.route }),
         label: params.table,
-        // ...(labelRoute && labelRoute !== '/' ? { labelRoute: labelRoute + '/' + params.table } : { labelRoute: params.table }),
         description: "Descripción de " + params.table
       }
     });
@@ -82,15 +82,17 @@ export class TablesService {
               name: coll.name,
               label: coll.name,
               route: "/",
-              description: ""
+              description: "",
             }
           }
           const tableMetadata = documentMetadata.table_metadata;
           return {
+            ...tableMetadata,
             name: coll.name,
             label: tableMetadata?.label ? tableMetadata.label : coll.name,
             isFolder: tableMetadata?.isFolder ? tableMetadata.isFolder : false,
             route: tableMetadata?.route ? tableMetadata.route : "/",
+            viewMode: tableMetadata?.viewMode,
             routeParam: tableMetadata?.routeParam ? tableMetadata.routeParam : "",
             description: tableMetadata?.description ? tableMetadata.description : "",
             permissions: tableMetadata?.permissions ? tableMetadata.permissions : "",
