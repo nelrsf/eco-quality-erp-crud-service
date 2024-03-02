@@ -10,8 +10,8 @@ export class FilterHashAndSalt implements NestMiddleware {
             const originalSend = res.send;
             res.send = async function (body: any) {
                 let bodyObject = JSON.parse(body);
-                delete bodyObject.salt;
-                delete bodyObject.password;
+                delete bodyObject?.salt;
+                delete bodyObject?.password;
                 originalSend.call(this, JSON.stringify(bodyObject));
             }
         }
