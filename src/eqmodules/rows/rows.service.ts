@@ -12,7 +12,10 @@ export class RowsService {
 
   async create(module: string, table: string, row: any, restrictions?: Array<any>) {
     const client = Connection.getClient();
-    await client.db(module).collection(table).insertOne(row);
+    const rowCreated = await client.db(module).collection(table).insertOne(row);
+    restrictions.forEach(
+      (res: any) => { res.rowId = rowCreated.insertedId.toString() }
+    )
     if (restrictions) {
       await this.updateRestrictions(module, table, restrictions);
       row = this.insertRestrictionsValues(row, restrictions, module, table);
@@ -39,12 +42,12 @@ export class RowsService {
           });
       }
       return null;
-    }).filter(promise => promise !== null); 
+    }).filter(promise => promise !== null);
 
     await Promise.all(columnPromises).then(results => {
 
       results.forEach(result => {
-        if (result) { 
+        if (result) {
           row[result.columnId] = result.value;
         }
       });
