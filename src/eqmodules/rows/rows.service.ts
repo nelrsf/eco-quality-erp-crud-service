@@ -13,7 +13,7 @@ export class RowsService {
   async create(module: string, table: string, row: any, restrictions?: Array<any>) {
     const client = Connection.getClient();
     const rowCreated = await client.db(module).collection(table).insertOne(row);
-    restrictions.forEach(
+    restrictions?.forEach(
       (res: any) => { res.rowId = rowCreated.insertedId.toString() }
     )
     if (restrictions) {
