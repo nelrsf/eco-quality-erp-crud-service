@@ -1,13 +1,14 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
+import { AppService } from './app.service';
 require('dotenv').config();
 
 @Controller()
 export class AppController {
-  constructor() { }
+  constructor(private readonly appService: AppService) { }
 
   @Get('/getdatabaseurl')
   findAll(@Res() res) {
-    res.status(HttpStatus.OK).json(process.env.DATABASE_URL);
+    const response = this.appService.formatResponse(process.env.DATABASE_URL);
+    res.status(HttpStatus.OK).json(response);
   }
-
 }

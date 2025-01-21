@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { Mongoose } from 'mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ErrorDataHandler } from './errorsHandler/errorsDictionary';
@@ -29,7 +29,7 @@ import { TableReadGuard } from './guards/table-read.guard';
 
 @Module({
   imports: [
-    Mongoose,
+    MongooseModule.forRoot('mongodb://localhost/nest'),
     ModulesModule,
     TablesModule,
     RowsModule,
